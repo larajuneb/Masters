@@ -1,5 +1,7 @@
 import sqlite3
 
+# Database schema creation
+
 def create_tables():
     db_path = "data/plants.db"
     conn = sqlite3.connect(db_path)

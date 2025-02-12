@@ -1,7 +1,9 @@
 import sqlite3
 import pandas as pd
 import json
-from plant import Plant
+from models.plant import Plant
+
+# Script to populate database from spreadsheets
 
 def load_data_from_spreadsheets():
     db_path = "data/plants.db"

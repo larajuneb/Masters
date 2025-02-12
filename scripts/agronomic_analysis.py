@@ -1,4 +1,4 @@
-from plant import Plant
+from models.plant import Plant
 import sqlite3
 from contextlib import closing
 
