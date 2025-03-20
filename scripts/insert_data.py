@@ -6,8 +6,10 @@ from models.plant import Plant
 # Script to populate database from spreadsheets
 
 def load_data_from_spreadsheets():
-    db_path = "data/plants.db"
-    conn = sqlite3.connect(db_path)
+
+    # Connect to the database
+    conn = sqlite3.connect("database/plants.db")
+    cursor = conn.cursor()
 
     # Example for one spreadsheet (repeat for others)
     df = pd.read_excel("path/to/your/spreadsheet.xlsx")
@@ -26,6 +28,9 @@ def load_data_from_spreadsheets():
 
     conn.close()
     print("Data loaded successfully.")
+
+def load_leaf_numbers():
+    
 
 if __name__ == "__main__":
     load_data_from_spreadsheets()
