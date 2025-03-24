@@ -42,3 +42,31 @@ print(p_bar)
 
 # Save the bar plot as a PNG file
 ggsave(filename = paste0(output_dir, "ChangeInLeafNumbers_bar_plot.png"), plot = p_bar, width = 8, height = 6, dpi = 300)
+
+
+# Create the scatter plot (without jitter)
+p2 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
+  geom_point(size = 3, alpha = 0.7) +
+  labs(title = "Weekly Leaf Gain per Treatment",
+       x = "Week",
+       y = "Leaves Gained",
+       color = "Treatment") +
+  theme_minimal()
+
+# Print and save the scatter plot (without jitter)
+print(p2)
+ggsave(filename = paste0(output_dir, "ChangeInLeafNumbers_scatter_plot_exact.png"), plot = p2, width = 8, height = 6, dpi = 300)
+
+# Create the scatter plot with jitter
+p3 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
+  geom_jitter(width = 0.2, size = 3, alpha = 0.7) +
+  labs(title = "Weekly Leaf Gain per Treatment",
+       x = "Week",
+       y = "Leaves Gained",
+       color = "Treatment") +
+  theme_minimal()
+
+# Print and save the scatter plot (with jitter)
+print(p3)
+ggsave(filename = paste0(output_dir, "ChangeInLeafNumbers_scatter_plot_jittered.png"), plot = p3, width = 8, height = 6, dpi = 300)
+
