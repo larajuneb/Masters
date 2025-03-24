@@ -7,7 +7,7 @@ library(tidyr)
 output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/"
 
 # Read the data
-data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/spreadsheets/Leaf Numbers.csv", header=FALSE, stringsAsFactors=FALSE)
+data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/spreadsheets/Change in Leaf Numbers.csv", header=FALSE, stringsAsFactors=FALSE)
 data <- separate(data, col = V1, into = c("Week", "Control", "StimBlue+"), sep = ",")
 data <- data[-1, ]
 rownames(data) <- NULL
@@ -31,7 +31,7 @@ data_long
 # Create a bar plot
 p_bar <- ggplot(data_long, aes(x = Week, y = Value, fill = Treatment)) +
   geom_bar(stat = "identity", position = "dodge") +
-  labs(title = "Weekly Leaf Gain per Treatment",
+  labs(title = "Weekly Change in Leaf Number per Treatment",
        x = "Week",
        y = "Leaves Gained",
        fill = "Treatment") +
@@ -47,7 +47,7 @@ ggsave(filename = paste0(output_dir, "ChangeInLeafNumbers_bar_plot.png"), plot =
 # Create the scatter plot (without jitter)
 p2 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
   geom_point(size = 3, alpha = 0.7) +
-  labs(title = "Weekly Leaf Gain per Treatment",
+  labs(title = "Weekly Change in Leaf Number per Treatment",
        x = "Week",
        y = "Leaves Gained",
        color = "Treatment") +
@@ -60,7 +60,7 @@ ggsave(filename = paste0(output_dir, "ChangeInLeafNumbers_scatter_plot_exact.png
 # Create the scatter plot with jitter
 p3 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
   geom_jitter(width = 0.2, size = 3, alpha = 0.7) +
-  labs(title = "Weekly Leaf Gain per Treatment",
+  labs(title = "Weekly Change in Leaf Number per Treatment",
        x = "Week",
        y = "Leaves Gained",
        color = "Treatment") +

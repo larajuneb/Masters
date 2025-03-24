@@ -31,9 +31,9 @@ data_long
 # Create a bar plot
 p_bar <- ggplot(data_long, aes(x = Week, y = Value, fill = Treatment)) +
   geom_bar(stat = "identity", position = "dodge") +
-  labs(title = "Weekly Shoot Growth per Treatment",
+  labs(title = "Weekly Change in Shoot Length per Treatment",
        x = "Week",
-       y = "Shoot Growth (mm)",
+       y = "Change in Shoot Length (mm)",
        fill = "Treatment") +
   theme_minimal()
 
@@ -46,9 +46,9 @@ ggsave(filename = paste0(output_dir, "ChangeInShootLength_bar_plot.png"), plot =
 # Create the scatter plot (without jitter)
 p2 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
   geom_point(size = 3, alpha = 0.7) +
-  labs(title = "Weekly Shoot Growth per Treatment",
+  labs(title = "Weekly Change in Shoot Length per Treatment",
        x = "Week",
-       y = "Shoot Growth (mm)",
+       y = "Change in Shoot Length (mm)",
        color = "Treatment") +
   theme_minimal()
 
@@ -59,9 +59,9 @@ ggsave(filename = paste0(output_dir, "ChangeInShootLength_scatter_plot_exact.png
 # Create the scatter plot with jitter
 p3 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
   geom_jitter(width = 0.2, size = 3, alpha = 0.7) +
-  labs(title = "Weekly Shoot Growth per Treatment",
+  labs(title = "Weekly Change in Shoot Length per Treatment",
        x = "Week",
-       y = "Shoot Growth (mm)",
+       y = "Change in Shoot Length (mm)",
        color = "Treatment") +
   theme_minimal()
 
