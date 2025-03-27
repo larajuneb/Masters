@@ -22,11 +22,101 @@ data_long <- data_long[data_long$Value != "", ]
 # Convert Week to a numeric factor to ensure correct ordering
 data_long$Week <- factor(data_long$Week, levels = sort(unique(as.numeric(data_long$Week))), ordered = TRUE)
 
-
 # Reset row numbering
 rownames(data_long) <- NULL
 data_long$Value <- as.numeric(data_long$Value)
 data_long
+
+# Perform Shapiro-Wilk test for each Week and Treatment group
+shapiro_results <- data_long %>%
+  group_by(Week, Treatment) %>%
+  summarise(
+    p_value = shapiro.test(Value)$p.value,
+    normality = ifelse(p_value > 0.05, "Yes", "No")
+  )
+
+# Print results
+print(shapiro_results)
+
+# Perform right-tailed t-test for each week
+RT_Students_t_test_results <- data_long %>%
+  group_by(Week) %>%
+  summarise(
+    t_test = list(t.test(
+      Value[Treatment == "Control"], 
+      Value[Treatment == "StimBlue+"], 
+      alternative = "greater", 
+      var.equal = TRUE
+    )),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    t_statistic = sapply(t_test, function(x) x$statistic),
+    p_value = sapply(t_test, function(x) x$p.value)
+  )
+
+# Display results
+print(RT_Students_t_test_results)
+
+# Perform right-tailed t-test for each week
+LT_Students_t_test_results <- data_long %>%
+  group_by(Week) %>%
+  summarise(
+    t_test = list(t.test(
+      Value[Treatment == "Control"], 
+      Value[Treatment == "StimBlue+"], 
+      alternative = "less", 
+      var.equal = TRUE
+    )),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    t_statistic = sapply(t_test, function(x) x$statistic),
+    p_value = sapply(t_test, function(x) x$p.value)
+  )
+
+# Display results
+print(LT_Students_t_test_results)
+
+# Perform right-tailed t-test for each week
+RT_Welchs_t_test_results <- data_long %>%
+  group_by(Week) %>%
+  summarise(
+    t_test = list(t.test(
+      Value[Treatment == "Control"], 
+      Value[Treatment == "StimBlue+"], 
+      alternative = "greater", 
+      var.equal = FALSE
+    )),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    t_statistic = sapply(t_test, function(x) x$statistic),
+    p_value = sapply(t_test, function(x) x$p.value)
+  )
+
+# Display results
+print(RT_Welchs_t_test_results)
+
+# Perform right-tailed t-test for each week
+LT_Welchs_t_test_results <- data_long %>%
+  group_by(Week) %>%
+  summarise(
+    t_test = list(t.test(
+      Value[Treatment == "Control"], 
+      Value[Treatment == "StimBlue+"], 
+      alternative = "less", 
+      var.equal = FALSE
+    )),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    t_statistic = sapply(t_test, function(x) x$statistic),
+    p_value = sapply(t_test, function(x) x$p.value)
+  )
+
+# Display results
+print(LT_Welchs_t_test_results)
 
 # Calculate mean and standard deviation (3 sigma) per treatment per week
 summary_data <- data_long %>%
