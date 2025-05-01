@@ -221,9 +221,49 @@ p3_sig <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
 print(p3_sig)
 ggsave(filename = paste0(output_dir, "gsw_individualReadings_scatter_plot_jittered.png"), plot = p3_sig, width = 8, height = 6, dpi = 300)
 
-#############################
+############################# RANKS
 ranked_weeks <- RT_Students_t_test_results %>%
   arrange(`p_value`) %>%
   mutate(Rank = row_number()) %>%
   select(Week, `p_value`, Rank)
 print(ranked_weeks)
+
+output_row <- c(DataType = "PhiPS2 - Indiv.", setNames(as.list(ranked_weeks$Week), as.character(ranked_weeks$Rank)))
+output_df <- as.data.frame(t(output_row), stringsAsFactors = FALSE)
+
+rankings_file <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/week_rankings.csv"
+
+# Load existing data (if any)
+if (file.exists(rankings_file)) {
+  rankings <- read.csv(rankings_file, check.names = FALSE, stringsAsFactors = FALSE)
+} else {
+  rankings <- NULL
+}
+
+data_type <- "gsw - Indiv."
+
+# Ensure ranked_weeks is ordered by Rank
+ranked_weeks <- ranked_weeks[order(ranked_weeks$Rank), ]
+week_values <- as.character(ranked_weeks$Week)  # Ensure it's a character vector
+
+# Create named row: DataType + Weeks 1–13
+output_row <- c(DataType = data_type, setNames(week_values, as.character(1:13)))
+output_df <- as.data.frame(t(output_row), stringsAsFactors = FALSE)
+
+# Check if DataType already exists
+if (is.null(rankings) || !(data_type %in% rankings$DataType)) {
+  if (!is.null(rankings)) {
+    # Ensure columns match and convert all to character
+    rankings[] <- lapply(rankings, as.character)
+    output_df[] <- lapply(output_df, as.character)
+    updated_data <- rbind(rankings, output_df)
+  } else {
+    updated_data <- output_df
+  }
+  
+  # Write to file
+  write.csv(updated_data, rankings_file, row.names = FALSE, quote = TRUE)
+  message("Row added.")
+} else {
+  message("DataType already exists. Row not added.")
+}
