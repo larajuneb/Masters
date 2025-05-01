@@ -6,6 +6,8 @@ library(tidyr)
 # Set output directory (modify this to your desired location)
 output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/"
 
+################################################ ROOTS
+
 # Read the data
 data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/spreadsheets/Fresh Weight - Shoots.csv", header=TRUE, stringsAsFactors=FALSE)
 colnames(data)[2] <- "StimBlue+"
@@ -61,7 +63,7 @@ print(data_long)
 #ggsave(filename = paste0(output_dir, "FreshWeight-Shoots_scatter_plot_jitter.png"), plot = p2, width = 8, height = 6, dpi = 300)
 
 
-
+################################################ ROOTS
 # Read the data
 data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/spreadsheets/Fresh Weight - Roots.csv", header=TRUE, stringsAsFactors=FALSE)
 colnames(data)[2] <- "StimBlue+"

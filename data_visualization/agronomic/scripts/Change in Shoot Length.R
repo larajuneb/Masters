@@ -160,3 +160,14 @@ p3 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
 print(p3)
 ggsave(filename = paste0(output_dir, "ChangeInShootLength_scatter_plot_jittered.png"), plot = p3, width = 8, height = 6, dpi = 300)
 
+shapiro_wide <- shapiro_results %>%
+  select(-p_value) %>%  # Remove p-value column
+  pivot_wider(names_from = Treatment, values_from = normality) %>%
+  rename(Normal_Control = Control, Normal_StimBlue = `StimBlue+`) %>%
+  drop_na()  # Remove any rows with NA values
+
+ranked_weeks <- RT_Students_t_test_results %>%
+  arrange(`p_value`) %>%
+  mutate(Rank = row_number()) %>%
+  select(Week, `p_value`, Rank)
+print(ranked_weeks)

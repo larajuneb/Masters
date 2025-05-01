@@ -167,6 +167,94 @@ data_long
 # Convert Treatment column to a factor (ensures categorical x-axis)
 data_long$Treatment <- as.factor(data_long$Treatment)
 
+# Perform Shapiro-Wilk test for each Treatment group
+shapiro_results <- data_long %>%
+  group_by(Treatment) %>%
+  summarise(
+    p_value = shapiro.test(Value)$p.value,
+    normality = ifelse(p_value > 0.05, "Yes", "No")
+  )
+
+# Print results
+print(shapiro_results)
+
+# Perform right-tailed t-test between Control and StimBlue+ (assuming equal variance)
+RT_Students_t_test_results <- data_long %>%
+  summarise(
+    t_test = list(t.test(
+      Value[Treatment == "Control"], 
+      Value[Treatment == "StimBlue+"], 
+      alternative = "greater", 
+      var.equal = TRUE
+    )),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    t_statistic = sapply(t_test, function(x) x$statistic),
+    p_value = sapply(t_test, function(x) x$p.value)
+  )
+
+# Display results
+print(RT_Students_t_test_results)
+
+# Perform left-tailed t-test between Control and StimBlue+ (assuming equal variance)
+LT_Students_t_test_results <- data_long %>%
+  summarise(
+    t_test = list(t.test(
+      Value[Treatment == "Control"], 
+      Value[Treatment == "StimBlue+"], 
+      alternative = "less", 
+      var.equal = TRUE
+    )),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    t_statistic = sapply(t_test, function(x) x$statistic),
+    p_value = sapply(t_test, function(x) x$p.value)
+  )
+
+# Display results
+print(LT_Students_t_test_results)
+
+# Perform right-tailed Welch's t-test (unequal variance) between Control and StimBlue+
+RT_Welchs_t_test_results <- data_long %>%
+  summarise(
+    t_test = list(t.test(
+      Value[Treatment == "Control"], 
+      Value[Treatment == "StimBlue+"], 
+      alternative = "greater", 
+      var.equal = FALSE
+    )),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    t_statistic = sapply(t_test, function(x) x$statistic),
+    p_value = sapply(t_test, function(x) x$p.value)
+  )
+
+# Display results
+print(RT_Welchs_t_test_results)
+
+# Perform left-tailed Welch's t-test (unequal variance) between Control and StimBlue+
+LT_Welchs_t_test_results <- data_long %>%
+  summarise(
+    t_test = list(t.test(
+      Value[Treatment == "Control"], 
+      Value[Treatment == "StimBlue+"], 
+      alternative = "less", 
+      var.equal = FALSE
+    )),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    t_statistic = sapply(t_test, function(x) x$statistic),
+    p_value = sapply(t_test, function(x) x$p.value)
+  )
+
+# Display results
+print(LT_Welchs_t_test_results)
+
+
 # Create the scatter plot (without jitter)
 p1 <- ggplot(data_long, aes(x = Treatment, y = Value, color = Treatment)) +
   geom_point(size = 3, alpha = 0.7) +
@@ -181,3 +269,4 @@ print(p1)
 
 # Save the bar plot as a PNG file
 ggsave(filename = paste0(output_dir, "DryWeight-Roots_scatter_plot_exact.png"), plot = p1, width = 8, height = 6, dpi = 300)
+
