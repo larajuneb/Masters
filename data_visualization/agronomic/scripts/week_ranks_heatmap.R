@@ -39,5 +39,7 @@ heatmap_plot <- ggplot(long_data, aes(x = Week, y = DataType, fill = Rank)) +
 # Print the plot
 print(heatmap_plot)
 
-# Optionally, save the plot to a file
-# ggsave("heatmap.png", heatmap_plot, width = 8, height = 6)
+# Set output directory (modify this to your desired location)
+output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/significance_marked/"
+
+ggsave(filename = paste0(output_dir, "week_rankings_heatmap.png"), plot = heatmap_plot, width = 8, height = 6, dpi = 300)

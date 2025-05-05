@@ -43,8 +43,8 @@ RT_Students_t_test_results <- data_long %>%
   group_by(Week) %>%
   summarise(
     t_test = list(t.test(
-      Value[Treatment == "Control"], 
       Value[Treatment == "StimBlue+"], 
+      Value[Treatment == "Control"], 
       alternative = "greater", 
       var.equal = TRUE
     )),
@@ -63,8 +63,8 @@ LT_Students_t_test_results <- data_long %>%
   group_by(Week) %>%
   summarise(
     t_test = list(t.test(
-      Value[Treatment == "Control"], 
       Value[Treatment == "StimBlue+"], 
+      Value[Treatment == "Control"],
       alternative = "less", 
       var.equal = TRUE
     )),
@@ -83,8 +83,8 @@ RT_Welchs_t_test_results <- data_long %>%
   group_by(Week) %>%
   summarise(
     t_test = list(t.test(
-      Value[Treatment == "Control"], 
       Value[Treatment == "StimBlue+"], 
+      Value[Treatment == "Control"], 
       alternative = "greater", 
       var.equal = FALSE
     )),
@@ -103,8 +103,8 @@ LT_Welchs_t_test_results <- data_long %>%
   group_by(Week) %>%
   summarise(
     t_test = list(t.test(
-      Value[Treatment == "Control"], 
       Value[Treatment == "StimBlue+"], 
+      Value[Treatment == "Control"],
       alternative = "less", 
       var.equal = FALSE
     )),
@@ -119,6 +119,8 @@ LT_Welchs_t_test_results <- data_long %>%
 print(LT_Welchs_t_test_results)
 
 # Calculate mean and standard deviation (3 sigma) per treatment per week
+sigma_multiple <- 3
+
 summary_data <- data_long %>%
   group_by(Week, Treatment) %>%
   summarise(
@@ -126,24 +128,31 @@ summary_data <- data_long %>%
     sd_value = sd(Value, na.rm = TRUE),
     .groups = 'drop'
   ) %>%
-  mutate(sd_value = sd_value * 3)  # Apply 3 sigma
+  mutate(sd_value = sd_value * sigma_multiple)  # Apply sigma multiple
 
+p1_title <- paste0("Leaf Number Over Time (Mean ± ", as.character(sigma_multiple),"σ)" )
 # Create the line plot
 p1 <- ggplot(summary_data, aes(x = Week, y = mean_value, color = Treatment, group = Treatment)) +
   geom_line(linewidth = 1.2) +
   geom_point(size = 3) +
   geom_errorbar(aes(ymin = mean_value - sd_value, ymax = mean_value + sd_value), width = 0.2) +
-  labs(title = "Leaf Number Over Time (Mean ± 3σ)",
+  labs(title = p1_title,
        x = "Week",
        y = "Leaf Number",
        color = "Treatment") +
-  theme_minimal()
+  theme_minimal() +
+  geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") +
+  coord_cartesian(clip = "off") +
+  annotate("text", x = 1, y = -10, label = "T1", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 5, y = -10, label = "T2", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 9, y = -10, label = "T3", vjust = 2, hjust = -0.5, angle = 0, size = 3)
 
 # Print the line plot
 print(p1)
 
 # Save the line plot as a PNG file
-ggsave(filename = paste0(output_dir, "LeafNumbers_line_plot_mean_3sigma.png"), plot = p1, width = 8, height = 6, dpi = 300)
+file_name <- paste0("LeafNumbers_line_plot_mean_", as.character(sigma_multiple), "sigma.png")
+ggsave(filename = paste0(output_dir, file_name), plot = p1, width = 8, height = 6, dpi = 300)
 
 # Create the scatter plot (without jitter)
 p2 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
@@ -152,7 +161,12 @@ p2 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
        x = "Week",
        y = "Leaf Number",
        color = "Treatment") +
-  theme_minimal()
+  theme_minimal() +
+  geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") +
+  coord_cartesian(clip = "off") +
+  annotate("text", x = 1, y = 25, label = "T1", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 5, y = 25, label = "T2", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 9, y = 25, label = "T3", vjust = 2, hjust = -0.5, angle = 0, size = 3)
 
 # Print and save the scatter plot (without jitter)
 print(p2)
@@ -165,7 +179,12 @@ p3 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
        x = "Week",
        y = "Leaf Number",
        color = "Treatment") +
-  theme_minimal()
+  theme_minimal() +
+  geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") +
+  coord_cartesian(clip = "off") +
+  annotate("text", x = 1, y = 25, label = "T1", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 5, y = 25, label = "T2", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 9, y = 25, label = "T3", vjust = 2, hjust = -0.5, angle = 0, size = 3)
 
 # Print and save the scatter plot (with jitter)
 print(p3)
@@ -217,7 +236,7 @@ p1 <- ggplot(summary_data, aes(x = Week, y = mean_value, color = Treatment, grou
   geom_line(linewidth = 1.2) +
   geom_point(size = 3) +
   geom_errorbar(aes(ymin = mean_value - sd_value, ymax = mean_value + sd_value), width = 0.2) +
-  labs(title = "Leaf Number Over Time (Mean ± 3σ)",
+  labs(title = p1_title,
        x = "Week",
        y = "Leaf Number",
        color = "Treatment") +
@@ -228,12 +247,13 @@ p1 <- ggplot(summary_data, aes(x = Week, y = mean_value, color = Treatment, grou
             size = 6,
             vjust = 0) +
   geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") +
-  annotate("text", x = 1, y = 270, label = "Treatment 1", vjust = 2, hjust = -0.1, angle = 90, size = 3) +
-  annotate("text", x = 5, y = 270, label = "Treatment 2", vjust = 2, hjust = -0.1, angle = 90, size = 3) +
-  annotate("text", x = 9, y = 270, label = "Treatment 3", vjust = 2, hjust = -0.1, angle = 90, size = 3)
+  coord_cartesian(clip = "off") +
+  annotate("text", x = 1, y = -10, label = "T1", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 5, y = -10, label = "T2", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 9, y = -10, label = "T3", vjust = 2, hjust = -0.5, angle = 0, size = 3)
 
 print(p1)
-ggsave(filename = paste0(output_dir, "LeafNumbers_line_plot_mean_3sigma.png"), plot = p1, width = 8, height = 6, dpi = 300)
+ggsave(filename = paste0(output_dir, file_name), plot = p1, width = 8, height = 6, dpi = 300)
 
 # ==== MODIFIED p2 with significance annotations and treatment lines ====
 # y-position estimate for significance stars in p2
@@ -259,9 +279,10 @@ p2 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
             size = 6,
             vjust = 0) +
   geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") +
-  annotate("text", x = 1, y = 230, label = "Treatment 1", vjust = 2, hjust = -0.1, angle = 90, size = 3) +
-  annotate("text", x = 5, y = 230, label = "Treatment 2", vjust = 2, hjust = -0.1, angle = 90, size = 3) +
-  annotate("text", x = 9, y = 230, label = "Treatment 3", vjust = 2, hjust = -0.1, angle = 90, size = 3)
+  coord_cartesian(clip = "off") +
+  annotate("text", x = 1, y = 25, label = "T1", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 5, y = 25, label = "T2", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 9, y = 25, label = "T3", vjust = 2, hjust = -0.5, angle = 0, size = 3)
 
 print(p2)
 ggsave(filename = paste0(output_dir, "LeafNumbers_scatter_plot_exact.png"), plot = p2, width = 8, height = 6, dpi = 300)

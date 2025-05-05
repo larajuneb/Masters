@@ -36,8 +36,8 @@ RT_Students_t_test_results <- data_long %>%
   group_by(Week) %>%
   summarise(
     t_test = list(t.test(
-      Value[Treatment == "Control"], 
       Value[Treatment == "StimBlue+"], 
+      Value[Treatment == "Control"], 
       alternative = "greater", 
       var.equal = TRUE
     )),
@@ -56,8 +56,8 @@ LT_Students_t_test_results <- data_long %>%
   group_by(Week) %>%
   summarise(
     t_test = list(t.test(
-      Value[Treatment == "Control"], 
       Value[Treatment == "StimBlue+"], 
+      Value[Treatment == "Control"], 
       alternative = "less", 
       var.equal = TRUE
     )),
@@ -76,8 +76,8 @@ RT_Welchs_t_test_results <- data_long %>%
   group_by(Week) %>%
   summarise(
     t_test = list(t.test(
-      Value[Treatment == "Control"], 
       Value[Treatment == "StimBlue+"], 
+      Value[Treatment == "Control"], 
       alternative = "greater", 
       var.equal = FALSE
     )),
@@ -96,8 +96,8 @@ LT_Welchs_t_test_results <- data_long %>%
   group_by(Week) %>%
   summarise(
     t_test = list(t.test(
-      Value[Treatment == "Control"], 
       Value[Treatment == "StimBlue+"], 
+      Value[Treatment == "Control"], 
       alternative = "less", 
       var.equal = FALSE
     )),

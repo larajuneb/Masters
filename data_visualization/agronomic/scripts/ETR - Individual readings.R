@@ -36,8 +36,8 @@ RT_Students_t_test_results <- data_long %>%
   group_by(Week) %>%
   summarise(
     t_test = list(t.test(
-      Value[Treatment == "Control"], 
       Value[Treatment == "StimBlue+"], 
+      Value[Treatment == "Control"], 
       alternative = "greater", 
       var.equal = TRUE
     )),
@@ -56,8 +56,8 @@ LT_Students_t_test_results <- data_long %>%
   group_by(Week) %>%
   summarise(
     t_test = list(t.test(
-      Value[Treatment == "Control"], 
       Value[Treatment == "StimBlue+"], 
+      Value[Treatment == "Control"], 
       alternative = "less", 
       var.equal = TRUE
     )),
@@ -76,8 +76,8 @@ RT_Welchs_t_test_results <- data_long %>%
   group_by(Week) %>%
   summarise(
     t_test = list(t.test(
-      Value[Treatment == "Control"], 
       Value[Treatment == "StimBlue+"], 
+      Value[Treatment == "Control"], 
       alternative = "greater", 
       var.equal = FALSE
     )),
@@ -96,8 +96,8 @@ LT_Welchs_t_test_results <- data_long %>%
   group_by(Week) %>%
   summarise(
     t_test = list(t.test(
-      Value[Treatment == "Control"], 
       Value[Treatment == "StimBlue+"], 
+      Value[Treatment == "Control"], 
       alternative = "less", 
       var.equal = FALSE
     )),
@@ -118,7 +118,13 @@ p2 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
        x = "Week",
        y = "ETR (umol+1m-2s-1)",
        color = "Treatment") +
-  theme_minimal()
+  theme_minimal() +
+  geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") +
+  coord_cartesian(clip = "off") +
+  annotate("text", x = 1, y = 20, label = "T1", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 5, y = 20, label = "T2", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 9, y = 20, label = "T3", vjust = 2, hjust = -0.5, angle = 0, size = 3)
+
 
 # Print and save the scatter plot (without jitter)
 print(p2)
@@ -131,7 +137,13 @@ p3 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
        x = "Week",
        y = "ETR (umol+1m-2s-1)",
        color = "Treatment") +
-  theme_minimal()
+  theme_minimal() +
+  geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") +
+  coord_cartesian(clip = "off") +
+  annotate("text", x = 1, y = 20, label = "T1", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 5, y = 20, label = "T2", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 9, y = 20, label = "T3", vjust = 2, hjust = -0.5, angle = 0, size = 3)
+
 
 # Print and save the scatter plot (with jitter)
 print(p3)
@@ -189,9 +201,10 @@ p2_sig <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
             size = 6,
             vjust = 0) +
   geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") +
-  annotate("text", x = 1, y = 0.205, label = "Treatment 1", vjust = 2, hjust = -0.1, angle = 90, size = 3) +
-  annotate("text", x = 5, y = 0.205, label = "Treatment 2", vjust = 2, hjust = -0.1, angle = 90, size = 3) +
-  annotate("text", x = 9, y = 0.205, label = "Treatment 3", vjust = 2, hjust = -0.1, angle = 90, size = 3)
+  coord_cartesian(clip = "off") +
+  annotate("text", x = 1, y = 20, label = "T1", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 5, y = 20, label = "T2", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 9, y = 20, label = "T3", vjust = 2, hjust = -0.5, angle = 0, size = 3)
 
 
 # Print and save the scatter plot (without jitter)
@@ -211,10 +224,11 @@ p3_sig <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
             inherit.aes = FALSE,
             size = 6,
             vjust = 0) +
-  geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") +
-  annotate("text", x = 1, y = 0.205, label = "Treatment 1", vjust = 2, hjust = -0.1, angle = 90, size = 3) +
-  annotate("text", x = 5, y = 0.205, label = "Treatment 2", vjust = 2, hjust = -0.1, angle = 90, size = 3) +
-  annotate("text", x = 9, y = 0.205, label = "Treatment 3", vjust = 2, hjust = -0.1, angle = 90, size = 3)
+  geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") + 
+  coord_cartesian(clip = "off") +
+  annotate("text", x = 1, y = 20, label = "T1", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 5, y = 20, label = "T2", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 9, y = 20, label = "T3", vjust = 2, hjust = -0.5, angle = 0, size = 3)
 
 # Print and save the scatter plot (with jitter)
 print(p3_sig)
@@ -266,3 +280,4 @@ if (is.null(rankings) || !(data_type %in% rankings$DataType)) {
 } else {
   message("DataType already exists. Row not added.")
 }
+
