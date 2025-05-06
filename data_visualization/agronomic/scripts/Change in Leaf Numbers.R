@@ -127,7 +127,12 @@ p_bar <- ggplot(data_long, aes(x = Week, y = Value, fill = Treatment)) +
        x = "Week",
        y = "Leaves Gained",
        fill = "Treatment") +
-  theme_minimal()
+  theme_minimal() +
+  geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") +
+  coord_cartesian(clip = "off") +
+  annotate("text", x = 1, y = -40, label = "T1", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 5, y = -40, label = "T2", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 9, y = -40, label = "T3", vjust = 2, hjust = -0.5, angle = 0, size = 3)
 
 # Print the bar plot
 print(p_bar)
@@ -143,7 +148,12 @@ p2 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
        x = "Week",
        y = "Leaves Gained",
        color = "Treatment") +
-  theme_minimal()
+  theme_minimal() +
+  geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") +
+  coord_cartesian(clip = "off") +
+  annotate("text", x = 1, y = -40, label = "T1", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 5, y = -40, label = "T2", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 9, y = -40, label = "T3", vjust = 2, hjust = -0.5, angle = 0, size = 3)
 
 # Print and save the scatter plot (without jitter)
 print(p2)
@@ -156,7 +166,12 @@ p3 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
        x = "Week",
        y = "Leaves Gained",
        color = "Treatment") +
-  theme_minimal()
+  theme_minimal() +
+  geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") +
+  coord_cartesian(clip = "off") +
+  annotate("text", x = 1, y = -40, label = "T1", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 5, y = -40, label = "T2", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 9, y = -40, label = "T3", vjust = 2, hjust = -0.5, angle = 0, size = 3)
 
 # Print and save the scatter plot (with jitter)
 print(p3)
@@ -216,9 +231,10 @@ p_bar_sig <- ggplot(data_long, aes(x = Week, y = Value, fill = Treatment)) +
             size = 6,
             vjust = 0) +
   geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") +
-  annotate("text", x = 1, y = 60, label = "Treatment 1", vjust = 2, hjust = -0.1, angle = 90, size = 3) +
-  annotate("text", x = 5, y = 60, label = "Treatment 2", vjust = 2, hjust = -0.1, angle = 90, size = 3) +
-  annotate("text", x = 9, y = 60, label = "Treatment 3", vjust = 2, hjust = -0.1, angle = 90, size = 3)
+  coord_cartesian(clip = "off") +
+  annotate("text", x = 1, y = -40, label = "T1", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 5, y = -40, label = "T2", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 9, y = -40, label = "T3", vjust = 2, hjust = -0.5, angle = 0, size = 3)
 
 
 # Print the bar plot
@@ -242,9 +258,10 @@ p2_sig <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
             size = 6,
             vjust = 0) +
   geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") +
-  annotate("text", x = 1, y = 60, label = "Treatment 1", vjust = 2, hjust = -0.1, angle = 90, size = 3) +
-  annotate("text", x = 5, y = 60, label = "Treatment 2", vjust = 2, hjust = -0.1, angle = 90, size = 3) +
-  annotate("text", x = 9, y = 60, label = "Treatment 3", vjust = 2, hjust = -0.1, angle = 90, size = 3)
+  coord_cartesian(clip = "off") +
+  annotate("text", x = 1, y = -40, label = "T1", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 5, y = -40, label = "T2", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 9, y = -40, label = "T3", vjust = 2, hjust = -0.5, angle = 0, size = 3)
 
 # Print and save the scatter plot (without jitter)
 print(p2_sig)
@@ -264,9 +281,10 @@ p3_sig <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
             size = 6,
             vjust = 0) +
   geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") +
-  annotate("text", x = 1, y = 60, label = "Treatment 1", vjust = 2, hjust = -0.1, angle = 90, size = 3) +
-  annotate("text", x = 5, y = 60, label = "Treatment 2", vjust = 2, hjust = -0.1, angle = 90, size = 3) +
-  annotate("text", x = 9, y = 60, label = "Treatment 3", vjust = 2, hjust = -0.1, angle = 90, size = 3)
+  coord_cartesian(clip = "off") +
+  annotate("text", x = 1, y = -40, label = "T1", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 5, y = -40, label = "T2", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 9, y = -40, label = "T3", vjust = 2, hjust = -0.5, angle = 0, size = 3)
 
 # Print and save the scatter plot (with jitter)
 print(p3_sig)
@@ -319,3 +337,26 @@ if (is.null(rankings) || !(data_type %in% rankings$DataType)) {
 } else {
   message("DataType already exists. Row not added.")
 }
+
+########################################### HEATMAP
+output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/significance_marked/pvalue_heatmaps/"
+
+# Plotting
+pvalue_heatmap <- ggplot(RT_Students_t_test_results, aes(x = Week, y = 1, fill = p_value)) +
+  geom_tile(color = "black") +
+  geom_text(aes(label = sprintf("%.3f", p_value)), color = "black", size = 4) +
+  scale_fill_gradientn(colors = heat.colors(100), limits = c(0, 1), name = "p-value") +
+  coord_fixed(ratio = 1) +  # This makes each tile a square
+  theme_minimal() +
+  theme(
+    axis.title = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    panel.grid = element_blank(),
+    legend.position = "bottom"
+  ) +
+  ggtitle(paste0("Right-tailed Student's t-test p-values by Week for ", data_type))
+
+# Print the plot
+print(pvalue_heatmap)
+ggsave(filename = paste0(output_dir, "ChangeInLeafNumber.png"), plot = pvalue_heatmap, width = 8, height = 6, dpi = 300)

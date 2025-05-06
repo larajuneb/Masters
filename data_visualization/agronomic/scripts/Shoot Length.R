@@ -224,3 +224,25 @@ if (is.null(rankings) || !(data_type %in% rankings$DataType)) {
 } else {
   message("DataType already exists. Row not added.")
 }
+########################################### HEATMAP
+output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/significance_marked/pvalue_heatmaps/"
+
+# Plotting
+pvalue_heatmap <- ggplot(RT_Students_t_test_results, aes(x = Week, y = 1, fill = p_value)) +
+  geom_tile(color = "black") +
+  geom_text(aes(label = sprintf("%.3f", p_value)), color = "black", size = 4) +
+  scale_fill_gradientn(colors = heat.colors(100), limits = c(0, 1), name = "p-value") +
+  coord_fixed(ratio = 1) +  # This makes each tile a square
+  theme_minimal() +
+  theme(
+    axis.title = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    panel.grid = element_blank(),
+    legend.position = "bottom"
+  ) +
+  ggtitle(paste0("Right-tailed Student's t-test p-values by Week for ", data_type))
+
+# Print the plot
+print(pvalue_heatmap)
+ggsave(filename = paste0(output_dir, "ShootLength.png"), plot = pvalue_heatmap, width = 8, height = 6, dpi = 300)
