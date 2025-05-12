@@ -4,15 +4,15 @@ library(dplyr)
 library(tidyr)
 
 # Set output directory (modify this to your desired location)
-output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/"
+output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/salt_stress/"
 
 # Read the data
-data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/spreadsheets/PhiPS2 - Individual readings.csv", header=TRUE, stringsAsFactors=FALSE)
+data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/salt_stress/PhiPS2 - Individual readings.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
 colnames(data)[3] <- "StimBlue+"
 
 # Reshape data into long format
 data_long <- data %>%
-  pivot_longer(cols = c("Control", "StimBlue+"), names_to = "Treatment", values_to = "Value")
+  pivot_longer(cols = c("Control", "StimBlue+", "StimBlue+ + NaCl", "NaCl"), names_to = "Treatment", values_to = "Value")
 data_long
 # Remove rows where Value is empty
 data_long <- na.omit(data_long)

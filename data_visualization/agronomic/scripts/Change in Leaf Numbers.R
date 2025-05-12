@@ -4,20 +4,19 @@ library(dplyr)
 library(tidyr)
 
 # Set output directory (modify this to your desired location)
-output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/"
+output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/salt_stress/"
 
 # Read the data
-data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/spreadsheets/Change in Leaf Numbers.csv", header=FALSE, stringsAsFactors=FALSE)
-data <- separate(data, col = V1, into = c("Week", "Control", "StimBlue+"), sep = ",")
-data <- data[-1, ]
+data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/salt_stress/Change in Leaf Numbers.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
+
 rownames(data) <- NULL
 data
 # Reshape data into long format
 data_long <- data %>%
-  pivot_longer(cols = c("Control", "StimBlue+"), names_to = "Treatment", values_to = "Value")
+  pivot_longer(cols = c("Control", "StimBlue+", "StimBlue+ + NaCl", "NaCl"), names_to = "Treatment", values_to = "Value")
 data_long
 # Remove rows where Value is empty
-data_long <- data_long[data_long$Value != "", ]
+data_long <- data_long[!is.na(data_long$Value) & data_long$Value != "", ]
 
 # Convert Week to a numeric factor to ensure correct ordering
 data_long$Week <- factor(data_long$Week, levels = sort(unique(as.numeric(data_long$Week))), ordered = TRUE)
