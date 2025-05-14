@@ -4,15 +4,14 @@ library(dplyr)
 library(tidyr)
 
 # Set output directory (modify this to your desired location)
-output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/"
+output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/salt_stress/"
 
 # Read the data
-data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/spreadsheets/Dry Weight - Shoots.csv", header=TRUE, stringsAsFactors=FALSE)
-colnames(data)[2] <- "StimBlue+"
+data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/salt_stress/Dry Weight - Shoots.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
 data
 # Reshape data into long format
 data_long <- data %>%
-  pivot_longer(cols = c("Control", "StimBlue+"), names_to = "Treatment", values_to = "Value")
+  pivot_longer(cols = c("Control", "StimBlue+", "StimBlue+ + NaCl", "NaCl"), names_to = "Treatment", values_to = "Value")
 data_long
 # Remove rows where Value is empty
 data_long <- na.omit(data_long)
@@ -150,11 +149,10 @@ ggsave(filename = paste0(output_dir, "DryWeight-Shoots_scatter_plot_jitter.png")
 
 
 # Read the data
-data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/spreadsheets/Dry Weight - Roots.csv", header=TRUE, stringsAsFactors=FALSE)
-colnames(data)[2] <- "StimBlue+"
+data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/salt_stress/Dry Weight - Roots.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
 # Reshape data into long format
 data_long <- data %>%
-  pivot_longer(cols = c("Control", "StimBlue+"), names_to = "Treatment", values_to = "Value")
+  pivot_longer(cols = c("Control", "StimBlue+", "StimBlue+ + NaCl", "NaCl"), names_to = "Treatment", values_to = "Value")
 data_long
 # Remove rows where Value is empty
 data_long <- na.omit(data_long)

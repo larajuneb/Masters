@@ -4,10 +4,10 @@ library(dplyr)
 library(tidyr)
 
 # Set output directory (modify this to your desired location)
-output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/salt_stress/"
+output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/salt_stress/excl_dead/"
 
 # Read the data
-data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/salt_stress/PhiPS2 - Individual readings.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
+data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/salt_stress/excl_dead/PhiPS2 - Individual readings.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
 colnames(data)[3] <- "StimBlue+"
 
 # Reshape data into long format
