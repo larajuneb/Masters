@@ -2,6 +2,9 @@
 library(ggplot2)
 library(dplyr)
 library(tidyr)
+library(purrr)
+library(broom)
+library(effectsize)
 
 # Set output directory (modify this to your desired location)
 output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/salt_stress/"
@@ -26,15 +29,129 @@ data_long$Value <- as.numeric(data_long$Value)
 data_long
 
 # Perform Shapiro-Wilk test for each Week and Treatment group
+#shapiro_results <- data_long %>%
+#  group_by(Week, Treatment) %>%
+#  summarise(
+#    p_value = shapiro.test(Value)$p.value,
+#    normality = ifelse(p_value > 0.05, "Yes", "No")
+#  )
+
 shapiro_results <- data_long %>%
   group_by(Week, Treatment) %>%
   summarise(
-    p_value = shapiro.test(Value)$p.value,
-    normality = ifelse(p_value > 0.05, "Yes", "No")
+    p_value = if (length(unique(Value)) > 1 & length(Value) >= 3) {
+      shapiro.test(Value)$p.value
+    } else {
+      NA_real_
+    },
+    normality = case_when(
+      is.na(p_value) ~ "No",
+      p_value > 0.05 ~ "Yes",
+      TRUE ~ "No"
+    ),
+    .groups = "drop"
   )
 
 # Print results
 print(shapiro_results)
+
+
+
+
+# List of treatment pairs (unordered)
+treatment_groups <- c("Control", "StimBlue+", "StimBlue+ + NaCl", "NaCl")
+treatment_pairs <- combn(treatment_groups, 2, simplify = FALSE)
+
+# All weeks to iterate over
+all_weeks <- 1:13
+
+# Function to perform right- or left-tailed t-tests for a given week
+perform_tests_for_week <- function(week, direction = "right") {
+  results <- map_dfr(treatment_pairs, function(pair) {
+    t1 <- pair[1]
+    t2 <- pair[2]
+    
+    # Check if both groups are normal in this week
+    norm_t1 <- shapiro_results %>%
+      filter(Week == week, Treatment == t1) %>%
+      pull(normality)
+    
+    norm_t2 <- shapiro_results %>%
+      filter(Week == week, Treatment == t2) %>%
+      pull(normality)
+    
+    # If either group is non-normal, return NA
+    if (length(norm_t1) == 0 || length(norm_t2) == 0 || norm_t1 != "Yes" || norm_t2 != "Yes") {
+      return(tibble(
+        Week = week,
+        Group1 = t1,
+        Group2 = t2,
+        p_value = NA,
+        statistic = NA,
+        cohens_d = NA
+      ))
+    }
+    
+    # Extract values
+    values1 <- data_long %>% filter(Week == week, Treatment == t1) %>% pull(Value)
+    values2 <- data_long %>% filter(Week == week, Treatment == t2) %>% pull(Value)
+    
+    if (length(values1) < 2 || length(values2) < 2) {
+      return(tibble(
+        Week = week,
+        Group1 = t1,
+        Group2 = t2,
+        p_value = NA,
+        statistic = NA,
+        cohens_d = NA
+      ))
+    }
+    
+    # Determine alternative hypothesis
+    alt <- ifelse(direction == "right", "greater", "less")
+    
+    # Perform t-test
+    t_result <- t.test(values1, values2, alternative = alt)
+    
+    # Compute effect size
+    d_result <- tryCatch({
+      effectsize::cohens_d(values1, values2, pooled_sd = TRUE)$Cohens_d
+    }, error = function(e) {
+      NA_real_
+    })
+    
+    tibble(
+      Week = week,
+      Group1 = t1,
+      Group2 = t2,
+      p_value = t_result$p.value,
+      statistic = t_result$statistic,
+      cohens_d = d_result
+    )
+  })
+  
+  return(results)
+}
+
+# Run right- and left-tailed tests
+right_tailed_results <- map_dfr(all_weeks, perform_tests_for_week, direction = "right")
+left_tailed_results  <- map_dfr(all_weeks, perform_tests_for_week, direction = "left")
+
+# Optional: Wide-format tables
+right_tailed_wide <- right_tailed_results %>%
+  mutate(comparison = paste(Group1, Group2, sep = "_vs_")) %>%
+  select(Week, comparison, p_value) %>%
+  pivot_wider(names_from = comparison, values_from = p_value)
+
+left_tailed_wide <- left_tailed_results %>%
+  mutate(comparison = paste(Group1, Group2, sep = "_vs_")) %>%
+  select(Week, comparison, p_value) %>%
+  pivot_wider(names_from = comparison, values_from = p_value)
+
+
+
+
+
 
 # Perform right-tailed t-test for each week
 RT_Students_t_test_results <- data_long %>%
