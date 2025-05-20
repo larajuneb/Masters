@@ -10,7 +10,7 @@ library(DT)
 library(openxlsx)
 
 # Set output directory (modify this to your desired location)
-output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/salt_stress/excl_outliers"
+output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/salt_stress/excl_outliers/"
 
 # Read the data
 data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/excl_outliers/salt_stress/Leaf Numbers.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
