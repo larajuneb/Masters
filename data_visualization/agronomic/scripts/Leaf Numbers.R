@@ -5,6 +5,9 @@ library(tidyr)
 library(purrr)
 library(broom)
 library(effectsize)
+library(tidyverse)
+library(DT)
+library(openxlsx)
 
 # Set output directory (modify this to your desired location)
 output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/salt_stress/"
@@ -71,86 +74,110 @@ perform_tests_for_week <- function(week, direction = "right") {
     t1 <- pair[1]
     t2 <- pair[2]
     
-    # Check if both groups are normal in this week
+    # Get normality results and p-values for each group
     norm_t1 <- shapiro_results %>%
       filter(Week == week, Treatment == t1) %>%
-      pull(normality)
+      select(normality, p_value_shapiro = p_value) %>% 
+      slice(1)
     
     norm_t2 <- shapiro_results %>%
       filter(Week == week, Treatment == t2) %>%
-      pull(normality)
+      select(normality, p_value_shapiro = p_value) %>%
+      slice(1)
     
-    # If either group is non-normal, return NA
-    if (length(norm_t1) == 0 || length(norm_t2) == 0 || norm_t1 != "Yes" || norm_t2 != "Yes") {
-      return(tibble(
-        Week = week,
-        Group1 = t1,
-        Group2 = t2,
-        p_value = NA,
-        statistic = NA,
-        cohens_d = NA
+    # Check for missing normality info or failure
+    if (nrow(norm_t1) == 0 || nrow(norm_t2) == 0) {
+      # No data for this week-treatment, return NA without shading
+      return(bind_rows(
+        tibble(Week = week, Group1 = t1, Group2 = t2, p_value = NA_real_, statistic = NA_real_, cohens_d = NA_real_, normality_failed = FALSE),
+        tibble(Week = week, Group1 = t2, Group2 = t1, p_value = NA_real_, statistic = NA_real_, cohens_d = NA_real_, normality_failed = FALSE)
       ))
     }
     
-    # Extract values
+    if (norm_t1$normality != "Yes" || norm_t2$normality != "Yes") {
+      # At least one group failed normality, return Shapiro p-value for that group in the cell, grey fill later
+      return(bind_rows(
+        tibble(
+          Week = week, Group1 = t1, Group2 = t2, 
+          p_value = ifelse(norm_t1$normality != "Yes", norm_t1$p_value_shapiro, NA_real_), 
+          statistic = NA_real_, cohens_d = NA_real_,
+          normality_failed = TRUE
+        ),
+        tibble(
+          Week = week, Group1 = t2, Group2 = t1, 
+          p_value = ifelse(norm_t2$normality != "Yes", norm_t2$p_value_shapiro, NA_real_), 
+          statistic = NA_real_, cohens_d = NA_real_,
+          normality_failed = TRUE
+        )
+      ))
+    }
+    
+    # Extract values for t-test and effect size
     values1 <- data_long %>% filter(Week == week, Treatment == t1) %>% pull(Value)
     values2 <- data_long %>% filter(Week == week, Treatment == t2) %>% pull(Value)
     
     if (length(values1) < 2 || length(values2) < 2) {
-      return(tibble(
-        Week = week,
-        Group1 = t1,
-        Group2 = t2,
-        p_value = NA,
-        statistic = NA,
-        cohens_d = NA
+      # Not enough data, return NA without shading
+      return(bind_rows(
+        tibble(Week = week, Group1 = t1, Group2 = t2, p_value = NA_real_, statistic = NA_real_, cohens_d = NA_real_, normality_failed = FALSE),
+        tibble(Week = week, Group1 = t2, Group2 = t1, p_value = NA_real_, statistic = NA_real_, cohens_d = NA_real_, normality_failed = FALSE)
       ))
     }
     
-    # Determine alternative hypothesis
     alt <- ifelse(direction == "right", "greater", "less")
     
-    # Perform t-test
-    t_result <- t.test(values1, values2, alternative = alt)
+    t_result1 <- t.test(values1, values2, alternative = alt)
+    t_result2 <- t.test(values2, values1, alternative = alt)
     
-    # Compute effect size
-    d_result <- tryCatch({
-      effectsize::cohens_d(values1, values2, pooled_sd = TRUE)$Cohens_d
-    }, error = function(e) {
-      NA_real_
-    })
+    d_result1 <- tryCatch(effectsize::cohens_d(values1, values2, pooled_sd = TRUE)$Cohens_d, error = function(e) NA_real_)
+    d_result2 <- tryCatch(effectsize::cohens_d(values2, values1, pooled_sd = TRUE)$Cohens_d, error = function(e) NA_real_)
     
-    tibble(
-      Week = week,
-      Group1 = t1,
-      Group2 = t2,
-      p_value = t_result$p.value,
-      statistic = t_result$statistic,
-      cohens_d = d_result
+    bind_rows(
+      tibble(
+        Week = week, Group1 = t1, Group2 = t2, 
+        p_value = t_result1$p.value, statistic = t_result1$statistic, cohens_d = d_result1,
+        normality_failed = FALSE
+      ),
+      tibble(
+        Week = week, Group1 = t2, Group2 = t1,
+        p_value = t_result2$p.value, statistic = t_result2$statistic, cohens_d = d_result2,
+        normality_failed = FALSE
+      )
     )
   })
-  
   return(results)
 }
 
 # Run right- and left-tailed tests
 right_tailed_results <- map_dfr(all_weeks, perform_tests_for_week, direction = "right")
+write.csv(right_tailed_results, "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/LeafNumbers_right_tailed_results.csv", row.names = FALSE)
+write.xlsx(right_tailed_wide, file = "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/LeafNumbers_right_tailed_results.xlsx")
+
 left_tailed_results  <- map_dfr(all_weeks, perform_tests_for_week, direction = "left")
+write.csv(left_tailed_results, "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/LeafNumbers_left_tailed_results.csv", row.names = FALSE)
+write.xlsx(left_tailed_wide, file = "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/LeafNumbers_left_tailed_results.xlsx")
 
 # Optional: Wide-format tables
 right_tailed_wide <- right_tailed_results %>%
   mutate(comparison = paste(Group1, Group2, sep = "_vs_")) %>%
-  select(Week, comparison, p_value) %>%
-  pivot_wider(names_from = comparison, values_from = p_value)
+  select(Week, comparison, p_value, normality_failed) %>%
+  pivot_wider(names_from = comparison, values_from = c(p_value, normality_failed))
 
 left_tailed_wide <- left_tailed_results %>%
   mutate(comparison = paste(Group1, Group2, sep = "_vs_")) %>%
-  select(Week, comparison, p_value) %>%
-  pivot_wider(names_from = comparison, values_from = p_value)
+  select(Week, comparison, p_value, normality_failed) %>%
+  pivot_wider(names_from = comparison, values_from = c(p_value, normality_failed))
 
+# Create a comparison name for column headers
+results_with_comparison <- right_tailed_results %>%
+  mutate(Comparison = paste(Group1, "vs", Group2)) %>%
+  select(Week, Comparison, cohens_d)
 
+# Pivot to wide format
+cohens_d_wide <- results_with_comparison %>%
+  pivot_wider(names_from = Comparison, values_from = cohens_d)
 
-
+write.csv(cohens_d_wide, "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/LeafNumbers_cohens_d.csv", row.names = FALSE)
 
 
 # Perform right-tailed t-test for each week
