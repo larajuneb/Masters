@@ -10,10 +10,10 @@ library(DT)
 library(openxlsx)
 
 # Set output directory (modify this to your desired location)
-output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/salt_stress/"
+output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/salt_stress/excl_outliers"
 
 # Read the data
-data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/salt_stress/Leaf Numbers.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
+data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/excl_outliers/salt_stress/Leaf Numbers.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
 rownames(data) <- NULL
 data
 # Reshape data into long format
@@ -150,12 +150,12 @@ perform_tests_for_week <- function(week, direction = "right") {
 
 # Run right- and left-tailed tests
 right_tailed_results <- map_dfr(all_weeks, perform_tests_for_week, direction = "right")
-write.csv(right_tailed_results, "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/LeafNumbers_right_tailed_results.csv", row.names = FALSE)
-write.xlsx(right_tailed_wide, file = "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/LeafNumbers_right_tailed_results.xlsx")
+write.csv(right_tailed_results, "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/excl_outliers/LeafNumbers_right_tailed_results.csv", row.names = FALSE)
+write.xlsx(right_tailed_wide, file = "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/excl_outliers/LeafNumbers_right_tailed_results.xlsx")
 
 left_tailed_results  <- map_dfr(all_weeks, perform_tests_for_week, direction = "left")
-write.csv(left_tailed_results, "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/LeafNumbers_left_tailed_results.csv", row.names = FALSE)
-write.xlsx(left_tailed_wide, file = "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/LeafNumbers_left_tailed_results.xlsx")
+write.csv(left_tailed_results, "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/excl_outliers/LeafNumbers_left_tailed_results.csv", row.names = FALSE)
+write.xlsx(left_tailed_wide, file = "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/excl_outliers/LeafNumbers_left_tailed_results.xlsx")
 
 # Optional: Wide-format tables
 right_tailed_wide <- right_tailed_results %>%
@@ -177,7 +177,7 @@ results_with_comparison <- right_tailed_results %>%
 cohens_d_wide <- results_with_comparison %>%
   pivot_wider(names_from = Comparison, values_from = cohens_d)
 
-write.csv(cohens_d_wide, "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/LeafNumbers_cohens_d.csv", row.names = FALSE)
+write.csv(cohens_d_wide, "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/excl_outliers/LeafNumbers_cohens_d.csv", row.names = FALSE)
 
 
 # Perform right-tailed t-test for each week
