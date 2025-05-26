@@ -6,10 +6,10 @@ library(tidyr)
 setwd("C:/Users/User/OneDrive - Stellenbosch University/Desktop/")
 
 # Set output directory (modify this to your desired location)
-output_dir <- "Masters/data_visualization/agronomic/plots/salt_stress/porometer_excl_dead/"
+output_dir <- "Masters/data_visualization/agronomic/plots/salt_stress/all_incl_dead/"
 
 # Read the data
-data <- read.csv("Masters/data/salt_stress/porometer_excl_dead/ETR - Plant averages.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
+data <- read.csv("Masters/data/salt_stress/all_incl_dead/ETR - Plant averages.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE, sep = ",")
 
 # Reshape data into long format
 data_long <- data %>%
@@ -25,92 +25,116 @@ data_long$Week <- factor(data_long$Week, levels = sort(unique(as.numeric(data_lo
 shapiro_results <- data_long %>%
   group_by(Week, Treatment) %>%
   summarise(
-    p_value = shapiro.test(Value)$p.value,
-    normality = ifelse(p_value > 0.05, "Yes", "No")
+    p_value = if (length(unique(Value)) > 1 & length(Value) >= 3) {
+      shapiro.test(Value)$p.value
+    } else {
+      NA_real_
+    },
+    normality = case_when(
+      is.na(p_value) ~ "No",
+      p_value > 0.05 ~ "Yes",
+      TRUE ~ "No"
+    ),
+    .groups = "drop"
   )
 
 # Print results
 print(shapiro_results)
 
-# Perform right-tailed t-test for each week
-RT_Students_t_test_results <- data_long %>%
-  group_by(Week) %>%
-  summarise(
-    t_test = list(t.test(
-      Value[Treatment == "StimBlue+"], 
-      Value[Treatment == "Control"], 
-      alternative = "greater", 
-      var.equal = TRUE
-    )),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    t_statistic = sapply(t_test, function(x) x$statistic),
-    p_value = sapply(t_test, function(x) x$p.value)
-  )
+# List of treatment pairs (unordered)
+treatment_groups <- c("Control", "StimBlue+", "StimBlue+ + NaCl", "NaCl")
+treatment_pairs <- combn(treatment_groups, 2, simplify = FALSE)
 
-# Display results
-print(RT_Students_t_test_results)
+# All weeks to iterate over
+all_weeks <- 1:13
 
-# Perform right-tailed t-test for each week
-LT_Students_t_test_results <- data_long %>%
-  group_by(Week) %>%
-  summarise(
-    t_test = list(t.test(
-      Value[Treatment == "StimBlue+"], 
-      Value[Treatment == "Control"], 
-      alternative = "less", 
-      var.equal = TRUE
-    )),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    t_statistic = sapply(t_test, function(x) x$statistic),
-    p_value = sapply(t_test, function(x) x$p.value)
-  )
+# Function to perform right- or left-tailed t-tests for a given week
+perform_tests_for_week <- function(week, direction = "right") {
+  results <- map_dfr(treatment_pairs, function(pair) {
+    t1 <- pair[1]
+    t2 <- pair[2]
+    
+    # Get normality results and p-values for each group
+    norm_t1 <- shapiro_results %>%
+      filter(Week == week, Treatment == t1) %>%
+      select(normality, p_value_shapiro = p_value) %>% 
+      slice(1)
+    
+    norm_t2 <- shapiro_results %>%
+      filter(Week == week, Treatment == t2) %>%
+      select(normality, p_value_shapiro = p_value) %>%
+      slice(1)
+    
+    # Check for missing normality info or failure
+    if (nrow(norm_t1) == 0 || nrow(norm_t2) == 0) {
+      # No data for this week-treatment, return NA without shading
+      return(bind_rows(
+        tibble(Week = week, Group1 = t1, Group2 = t2, p_value = NA_real_, statistic = NA_real_, cohens_d = NA_real_, normality_failed = FALSE),
+        tibble(Week = week, Group1 = t2, Group2 = t1, p_value = NA_real_, statistic = NA_real_, cohens_d = NA_real_, normality_failed = FALSE)
+      ))
+    }
+    
+    if (norm_t1$normality != "Yes" || norm_t2$normality != "Yes") {
+      # At least one group failed normality, return Shapiro p-value for that group in the cell, grey fill later
+      return(bind_rows(
+        tibble(
+          Week = week, Group1 = t1, Group2 = t2, 
+          p_value = ifelse(norm_t1$normality != "Yes", norm_t1$p_value_shapiro, NA_real_), 
+          statistic = NA_real_, cohens_d = NA_real_,
+          normality_failed = TRUE
+        ),
+        tibble(
+          Week = week, Group1 = t2, Group2 = t1, 
+          p_value = ifelse(norm_t2$normality != "Yes", norm_t2$p_value_shapiro, NA_real_), 
+          statistic = NA_real_, cohens_d = NA_real_,
+          normality_failed = TRUE
+        )
+      ))
+    }
+    
+    # Extract values for t-test and effect size
+    values1 <- data_long %>% filter(Week == week, Treatment == t1) %>% pull(Value)
+    values2 <- data_long %>% filter(Week == week, Treatment == t2) %>% pull(Value)
+    
+    if (length(values1) < 2 || length(values2) < 2) {
+      # Not enough data, return NA without shading
+      return(bind_rows(
+        tibble(Week = week, Group1 = t1, Group2 = t2, p_value = NA_real_, statistic = NA_real_, cohens_d = NA_real_, normality_failed = FALSE),
+        tibble(Week = week, Group1 = t2, Group2 = t1, p_value = NA_real_, statistic = NA_real_, cohens_d = NA_real_, normality_failed = FALSE)
+      ))
+    }
+    
+    alt <- ifelse(direction == "right", "greater", "less")
+    
+    t_result1 <- t.test(values1, values2, alternative = alt)
+    t_result2 <- t.test(values2, values1, alternative = alt)
+    
+    d_result1 <- tryCatch(effectsize::cohens_d(values1, values2, pooled_sd = TRUE)$Cohens_d, error = function(e) NA_real_)
+    d_result2 <- tryCatch(effectsize::cohens_d(values2, values1, pooled_sd = TRUE)$Cohens_d, error = function(e) NA_real_)
+    
+    bind_rows(
+      tibble(
+        Week = week, Group1 = t1, Group2 = t2, 
+        p_value = t_result1$p.value, statistic = t_result1$statistic, cohens_d = d_result1,
+        normality_failed = FALSE
+      ),
+      tibble(
+        Week = week, Group1 = t2, Group2 = t1,
+        p_value = t_result2$p.value, statistic = t_result2$statistic, cohens_d = d_result2,
+        normality_failed = FALSE
+      )
+    )
+  })
+  return(results)
+}
 
-# Display results
-print(LT_Students_t_test_results)
+# Run right- and left-tailed tests
+right_tailed_results <- map_dfr(all_weeks, perform_tests_for_week, direction = "right")
+write.csv(right_tailed_results, "Masters/data_visualization/agronomic/test_results/salt_stress/all_incl_dead/ETR_plantAverages_right_tailed_results.csv", row.names = FALSE)
 
-# Perform right-tailed t-test for each week
-RT_Welchs_t_test_results <- data_long %>%
-  group_by(Week) %>%
-  summarise(
-    t_test = list(t.test(
-      Value[Treatment == "StimBlue+"], 
-      Value[Treatment == "Control"], 
-      alternative = "greater", 
-      var.equal = FALSE
-    )),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    t_statistic = sapply(t_test, function(x) x$statistic),
-    p_value = sapply(t_test, function(x) x$p.value)
-  )
+left_tailed_results  <- map_dfr(all_weeks, perform_tests_for_week, direction = "left")
+write.csv(left_tailed_results, "Masters/data_visualization/agronomic/test_results/salt_stress/all_incl_dead/ETR_plantAverages_left_tailed_results.csv", row.names = FALSE)
 
-# Display results
-print(RT_Welchs_t_test_results)
-
-# Perform right-tailed t-test for each week
-LT_Welchs_t_test_results <- data_long %>%
-  group_by(Week) %>%
-  summarise(
-    t_test = list(t.test(
-      Value[Treatment == "StimBlue+"], 
-      Value[Treatment == "Control"], 
-      alternative = "less", 
-      var.equal = FALSE
-    )),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    t_statistic = sapply(t_test, function(x) x$statistic),
-    p_value = sapply(t_test, function(x) x$p.value)
-  )
-
-# Display results
-print(LT_Welchs_t_test_results)
 
 # Create the scatter plot (without jitter)
 p2 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
@@ -152,6 +176,14 @@ ggsave(filename = paste0(output_dir, "ETR_plantAverages_scatter_plot_jittered.pn
 
 # Set output directory (modify this to your desired location)
 output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/significance_marked/"
+
+# Perform Shapiro-Wilk test for each Week and Treatment group
+shapiro_results <- data_long %>%
+  group_by(Week, Treatment) %>%
+  summarise(
+    p_value = shapiro.test(Value)$p.value,
+    normality = ifelse(p_value > 0.05, "Yes", "No")
+  )
 
 # Reshape Shapiro results into wide format
 shapiro_wide <- shapiro_results %>%
