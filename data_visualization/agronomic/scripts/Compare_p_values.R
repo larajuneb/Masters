@@ -5,6 +5,7 @@ library(tidyr)
 
 setwd("C:/Users/User/OneDrive - Stellenbosch University/Desktop/Masters/")
 
+data_type <- ""
 # Set output directory (modify this to your desired location)
 output_dir <- "data_visualization/agronomic/plots/salt_stress/compare_cases/"
 
