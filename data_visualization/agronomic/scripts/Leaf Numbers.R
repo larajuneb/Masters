@@ -34,13 +34,6 @@ data_long$Value <- as.numeric(data_long$Value)
 data_long
 
 # Perform Shapiro-Wilk test for each Week and Treatment group
-#shapiro_results <- data_long %>%
-#  group_by(Week, Treatment) %>%
-#  summarise(
-#    p_value = shapiro.test(Value)$p.value,
-#    normality = ifelse(p_value > 0.05, "Yes", "No")
-#  )
-
 shapiro_results <- data_long %>%
   group_by(Week, Treatment) %>%
   summarise(
@@ -59,9 +52,6 @@ shapiro_results <- data_long %>%
 
 # Print results
 print(shapiro_results)
-
-
-
 
 # List of treatment pairs (unordered)
 treatment_groups <- c("Control", "StimBlue+", "StimBlue+ + NaCl", "NaCl")
@@ -152,115 +142,11 @@ perform_tests_for_week <- function(week, direction = "right") {
 
 # Run right- and left-tailed tests
 right_tailed_results <- map_dfr(all_weeks, perform_tests_for_week, direction = "right")
-write.csv(right_tailed_results, "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/excl_outliers/LeafNumbers_right_tailed_results.csv", row.names = FALSE)
-write.xlsx(right_tailed_wide, file = "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/excl_outliers/LeafNumbers_right_tailed_results.xlsx")
+write.csv(right_tailed_results, "Masters/data_visualization/agronomic/test_results/salt_stress/excl_outliers/LeafNumbers_right_tailed_results.csv", row.names = FALSE)
 
 left_tailed_results  <- map_dfr(all_weeks, perform_tests_for_week, direction = "left")
-write.csv(left_tailed_results, "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/excl_outliers/LeafNumbers_left_tailed_results.csv", row.names = FALSE)
-write.xlsx(left_tailed_wide, file = "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/excl_outliers/LeafNumbers_left_tailed_results.xlsx")
+write.csv(left_tailed_results, "Masters/data_visualization/agronomic/test_results/salt_stress/excl_outliers/LeafNumbers_left_tailed_results.csv", row.names = FALSE)
 
-# Optional: Wide-format tables
-right_tailed_wide <- right_tailed_results %>%
-  mutate(comparison = paste(Group1, Group2, sep = "_vs_")) %>%
-  select(Week, comparison, p_value, normality_failed) %>%
-  pivot_wider(names_from = comparison, values_from = c(p_value, normality_failed))
-
-left_tailed_wide <- left_tailed_results %>%
-  mutate(comparison = paste(Group1, Group2, sep = "_vs_")) %>%
-  select(Week, comparison, p_value, normality_failed) %>%
-  pivot_wider(names_from = comparison, values_from = c(p_value, normality_failed))
-
-# Create a comparison name for column headers
-results_with_comparison <- right_tailed_results %>%
-  mutate(Comparison = paste(Group1, "vs", Group2)) %>%
-  select(Week, Comparison, cohens_d)
-
-# Pivot to wide format
-cohens_d_wide <- results_with_comparison %>%
-  pivot_wider(names_from = Comparison, values_from = cohens_d)
-
-write.csv(cohens_d_wide, "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/test_results/excl_outliers/LeafNumbers_cohens_d.csv", row.names = FALSE)
-
-
-# Perform right-tailed t-test for each week
-RT_Students_t_test_results <- data_long %>%
-  group_by(Week) %>%
-  summarise(
-    t_test = list(t.test(
-      Value[Treatment == "StimBlue+"], 
-      Value[Treatment == "Control"], 
-      alternative = "greater", 
-      var.equal = TRUE
-    )),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    t_statistic = sapply(t_test, function(x) x$statistic),
-    p_value = sapply(t_test, function(x) x$p.value)
-  )
-
-# Display results
-print(RT_Students_t_test_results)
-
-# Perform right-tailed t-test for each week
-LT_Students_t_test_results <- data_long %>%
-  group_by(Week) %>%
-  summarise(
-    t_test = list(t.test(
-      Value[Treatment == "StimBlue+"], 
-      Value[Treatment == "Control"],
-      alternative = "less", 
-      var.equal = TRUE
-    )),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    t_statistic = sapply(t_test, function(x) x$statistic),
-    p_value = sapply(t_test, function(x) x$p.value)
-  )
-
-# Display results
-print(LT_Students_t_test_results)
-
-# Perform right-tailed t-test for each week
-RT_Welchs_t_test_results <- data_long %>%
-  group_by(Week) %>%
-  summarise(
-    t_test = list(t.test(
-      Value[Treatment == "StimBlue+"], 
-      Value[Treatment == "Control"], 
-      alternative = "greater", 
-      var.equal = FALSE
-    )),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    t_statistic = sapply(t_test, function(x) x$statistic),
-    p_value = sapply(t_test, function(x) x$p.value)
-  )
-
-# Display results
-print(RT_Welchs_t_test_results)
-
-# Perform right-tailed t-test for each week
-LT_Welchs_t_test_results <- data_long %>%
-  group_by(Week) %>%
-  summarise(
-    t_test = list(t.test(
-      Value[Treatment == "StimBlue+"], 
-      Value[Treatment == "Control"],
-      alternative = "less", 
-      var.equal = FALSE
-    )),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    t_statistic = sapply(t_test, function(x) x$statistic),
-    p_value = sapply(t_test, function(x) x$p.value)
-  )
-
-# Display results
-print(LT_Welchs_t_test_results)
 
 # Calculate mean and standard deviation (3 sigma) per treatment per week
 sigma_multiple <- 1
