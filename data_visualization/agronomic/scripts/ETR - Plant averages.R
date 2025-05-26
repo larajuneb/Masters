@@ -3,16 +3,17 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 
+setwd("C:/Users/User/OneDrive - Stellenbosch University/Desktop/")
+
 # Set output directory (modify this to your desired location)
-output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/"
+output_dir <- "Masters/data_visualization/agronomic/plots/salt_stress/porometer_excl_dead/"
 
 # Read the data
-data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/spreadsheets/ETR - Plant averages.csv", header=TRUE, stringsAsFactors=FALSE)
-colnames(data)[3] <- "StimBlue+"
+data <- read.csv("Masters/data/salt_stress/porometer_excl_dead/ETR - Plant averages.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
 
 # Reshape data into long format
 data_long <- data %>%
-  pivot_longer(cols = c("Control", "StimBlue+"), names_to = "Treatment", values_to = "Value")
+  pivot_longer(cols = c("Control", "StimBlue+", "StimBlue+ + NaCl", "NaCl"), names_to = "Treatment", values_to = "Value")
 data_long
 # Remove rows where Value is empty
 data_long <- na.omit(data_long)

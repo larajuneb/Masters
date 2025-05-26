@@ -3,18 +3,18 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 
+setwd("C:/Users/User/OneDrive - Stellenbosch University/Desktop/")
+
 # Set output directory (modify this to your desired location)
-output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/"
+output_dir <- "Masters/data_visualization/agronomic/plots/salt_stress/all_incl_dead/"
 
 # Read the data
-data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/spreadsheets/Shoot Length.csv", header=FALSE, stringsAsFactors=FALSE)
-data <- separate(data, col = V1, into = c("Week", "Control", "StimBlue+"), sep = ",")
-data <- data[-1, ]
+data <- read.csv("Masters/data/salt_stress/all_incl_dead/Shoot Length.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
 rownames(data) <- NULL
 data
 # Reshape data into long format
 data_long <- data %>%
-  pivot_longer(cols = c("Control", "StimBlue+"), names_to = "Treatment", values_to = "Value")
+  pivot_longer(cols = c("Control", "StimBlue+", "StimBlue+ + NaCl", "NaCl"), names_to = "Treatment", values_to = "Value")
 data_long
 # Remove rows where Value is empty
 data_long <- data_long[data_long$Value != "", ]
@@ -120,6 +120,8 @@ LT_Welchs_t_test_results <- data_long %>%
 print(LT_Welchs_t_test_results)
 
 # Calculate mean and standard deviation (3 sigma) per treatment per week
+sigma_multiple <- 3
+
 summary_data <- data_long %>%
   group_by(Week, Treatment) %>%
   summarise(
@@ -127,24 +129,33 @@ summary_data <- data_long %>%
     sd_value = sd(Value, na.rm = TRUE),
     .groups = 'drop'
   ) %>%
-  mutate(sd_value = sd_value * 3)  # Apply 3 sigma
+  mutate(sd_value = sd_value * sigma_multiple)  # Apply sigma multiple
+
+p1_title <- paste0("Shoot Length Over Time (Mean ± ", as.character(sigma_multiple),"σ)" )
 
 # Create the line plot
 p1 <- ggplot(summary_data, aes(x = Week, y = mean_value, color = Treatment, group = Treatment)) +
   geom_line(linewidth = 1.2) +
   geom_point(size = 3) +
   geom_errorbar(aes(ymin = mean_value - sd_value, ymax = mean_value + sd_value), width = 0.2) +
-  labs(title = "Shoot Length Over Time (Mean ± 3σ)",
+  labs(title = p1_title,
        x = "Week",
        y = "Shoot Length (mm)",
        color = "Treatment") +
-  theme_minimal()
+  theme_minimal() +
+  geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") +
+  coord_cartesian(clip = "off") +
+  annotate("text", x = 1, y = -10, label = "T1", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 5, y = -10, label = "T2", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 9, y = -10, label = "T3", vjust = 2, hjust = -0.5, angle = 0, size = 3)
+
 
 # Print the line plot
 print(p1)
 
 # Save the line plot as a PNG file
-ggsave(filename = paste0(output_dir, "ShootLength_line_plot_mean_3sigma.png"), plot = p1, width = 8, height = 6, dpi = 300)
+file_name <- paste0("ShootLength_line_plot_mean_", as.character(sigma_multiple), "sigma.png")
+ggsave(filename = paste0(output_dir, file_name), plot = p1, width = 8, height = 6, dpi = 300)
 
 # Create the scatter plot (without jitter)
 p2 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
@@ -153,7 +164,13 @@ p2 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
        x = "Week",
        y = "Shoot Length (mm)",
        color = "Treatment") +
-  theme_minimal()
+  theme_minimal() +
+  geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") +
+  coord_cartesian(clip = "off") +
+  annotate("text", x = 1, y = -10, label = "T1", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 5, y = -10, label = "T2", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 9, y = -10, label = "T3", vjust = 2, hjust = -0.5, angle = 0, size = 3)
+
 
 # Print and save the scatter plot (without jitter)
 print(p2)
@@ -166,7 +183,13 @@ p3 <- ggplot(data_long, aes(x = Week, y = Value, color = Treatment)) +
        x = "Week",
        y = "Shoot Length (mm)",
        color = "Treatment") +
-  theme_minimal()
+  theme_minimal() +
+  geom_vline(xintercept = c(1, 5, 9), linetype = "dashed", color = "grey40") +
+  coord_cartesian(clip = "off") +
+  annotate("text", x = 1, y = -10, label = "T1", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 5, y = -10, label = "T2", vjust = 2, hjust = -0.5, angle = 0, size = 3) +
+  annotate("text", x = 9, y = -10, label = "T3", vjust = 2, hjust = -0.5, angle = 0, size = 3)
+
 
 # Print and save the scatter plot (with jitter)
 print(p3)

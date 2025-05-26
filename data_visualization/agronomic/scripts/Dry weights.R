@@ -3,11 +3,13 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 
+setwd("C:/Users/User/OneDrive - Stellenbosch University/Desktop/")
+
 # Set output directory (modify this to your desired location)
-output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/salt_stress/"
+output_dir <- "Masters/data_visualization/agronomic/plots/salt_stress/excl_outliers/"
 
 # Read the data
-data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/salt_stress/Dry Weight - Shoots.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
+data <- read.csv("Masters/data/salt_stress/excl_outliers/Dry Weight - Shoots.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
 data
 # Reshape data into long format
 data_long <- data %>%
@@ -149,7 +151,7 @@ ggsave(filename = paste0(output_dir, "DryWeight-Shoots_scatter_plot_jitter.png")
 
 
 # Read the data
-data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/salt_stress/Dry Weight - Roots.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
+data <- read.csv("Masters/data/salt_stress/excl_outliers/Dry Weight - Roots.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
 # Reshape data into long format
 data_long <- data %>%
   pivot_longer(cols = c("Control", "StimBlue+", "StimBlue+ + NaCl", "NaCl"), names_to = "Treatment", values_to = "Value")
@@ -267,4 +269,20 @@ print(p1)
 
 # Save the bar plot as a PNG file
 ggsave(filename = paste0(output_dir, "DryWeight-Roots_scatter_plot_exact.png"), plot = p1, width = 8, height = 6, dpi = 300)
+
+# Create the scatter plot with jitter
+p2 <- ggplot(data_long, aes(x = Treatment, y = Value, color = Treatment)) +
+  geom_jitter(width = 0.2, size = 3, alpha = 0.7) +
+  labs(title = "Effect of StimBlue+ on Root Dry Weight",
+       x = "Treatment",
+       y = "Root Dry Weight (g)",
+       color = "Treatment") +
+  theme_minimal()
+
+# Print the scatter plot
+print(p2)
+
+# Save the scatter plot as a PNG file
+ggsave(filename = paste0(output_dir, "DryWeight-Roots_scatter_plot_jitter.png"), plot = p2, width = 8, height = 6, dpi = 300)
+
 

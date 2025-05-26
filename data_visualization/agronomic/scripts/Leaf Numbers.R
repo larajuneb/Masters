@@ -9,11 +9,13 @@ library(tidyverse)
 library(DT)
 library(openxlsx)
 
+setwd("C:/Users/User/OneDrive - Stellenbosch University/Desktop/")
+
 # Set output directory (modify this to your desired location)
-output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/salt_stress/excl_outliers/"
+output_dir <- "Masters/data_visualization/agronomic/plots/salt_stress/excl_outliers/"
 
 # Read the data
-data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/excl_outliers/salt_stress/Leaf Numbers.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
+data <- read.csv("Masters/data/salt_stress/excl_outliers/Leaf Numbers.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
 rownames(data) <- NULL
 data
 # Reshape data into long format

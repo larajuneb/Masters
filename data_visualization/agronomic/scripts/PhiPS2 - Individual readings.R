@@ -3,12 +3,13 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 
+setwd("C:/Users/User/OneDrive - Stellenbosch University/Desktop/")
+
 # Set output directory (modify this to your desired location)
-output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/salt_stress/excl_dead/"
+output_dir <- "Masters/data_visualization/agronomic/plots/salt_stress/excl_outliers/porometer_excl_dead/"
 
 # Read the data
-data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/salt_stress/excl_dead/PhiPS2 - Individual readings.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
-colnames(data)[3] <- "StimBlue+"
+data <- read.csv("Masters/data/salt_stress/excl_outliers/porometer_excl_dead/PhiPS2 - Individual readings.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE, sep = ";")
 
 # Reshape data into long format
 data_long <- data %>%

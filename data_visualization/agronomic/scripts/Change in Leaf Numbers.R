@@ -3,11 +3,13 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 
+setwd("C:/Users/User/OneDrive - Stellenbosch University/Desktop/")
+
 # Set output directory (modify this to your desired location)
-output_dir <- "/home/larajuneb/Masters/Code/Masters/data_visualization/agronomic/plots/salt_stress/"
+output_dir <- "Masters/data_visualization/agronomic/plots/salt_stress/excl_outliers/"
 
 # Read the data
-data <- read.csv("/home/larajuneb/Masters/Code/Masters/data/salt_stress/Change in Leaf Numbers.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
+data <- read.csv("Masters/data/salt_stress/excl_outliers/Change in Leaf Numbers.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
 
 rownames(data) <- NULL
 data
