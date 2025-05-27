@@ -6,7 +6,7 @@ library(tidyr)
 setwd("C:/Users/User/OneDrive - Stellenbosch University/Desktop/")
 
 # Set output directory (modify this to your desired location)
-output_dir <- "Masters/data_visualization/agronomic/plots/salt_stress/excl_outliers/"
+output_dir <- "Masters/data_visualization/agronomic/plots/salt_stress/all_incl_dead/"
 
 # Read the data
 data <- read.csv("Masters/data/salt_stress/excl_outliers/Dry Weight - Shoots.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
@@ -182,8 +182,8 @@ print(shapiro_results)
 RT_Students_t_test_results <- data_long %>%
   summarise(
     t_test = list(t.test(
-      Value[Treatment == "Control"], 
-      Value[Treatment == "StimBlue+"], 
+      Value[Treatment == "StimBlue+ + NaCl"], 
+      Value[Treatment == "NaCl"], 
       alternative = "greater", 
       var.equal = TRUE
     )),
