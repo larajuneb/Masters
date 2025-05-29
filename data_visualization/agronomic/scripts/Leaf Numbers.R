@@ -12,10 +12,10 @@ library(openxlsx)
 setwd("C:/Users/User/OneDrive - Stellenbosch University/Desktop/")
 
 # Set output directory (modify this to your desired location)
-output_dir <- "Masters/data_visualization/agronomic/plots/salt_stress/excl_outliers/"
+output_dir <- "Masters/data_visualization/agronomic/plots/salt_stress/all_incl_dead/"
 
 # Read the data
-data <- read.csv("Masters/data/salt_stress/excl_outliers/Leaf Numbers.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
+data <- read.csv("Masters/data/salt_stress/all_incl_dead/Leaf Numbers.csv", header=TRUE, stringsAsFactors=FALSE, check.names = FALSE)
 rownames(data) <- NULL
 data
 # Reshape data into long format
@@ -151,21 +151,34 @@ write.csv(left_tailed_results, "Masters/data_visualization/agronomic/test_result
 # Calculate mean and standard deviation (3 sigma) per treatment per week
 sigma_multiple <- 1
 
+# summary_data <- data_long %>%
+#   group_by(Week, Treatment) %>%
+#   summarise(
+#     mean_value = mean(Value, na.rm = TRUE),
+#     sd_value = sd(Value, na.rm = TRUE),
+#     .groups = 'drop'
+#   ) %>%
+#   mutate(sd_value = sd_value * sigma_multiple)  # Apply sigma multiple
+
+# Calculate mean and standard error per treatment per week
 summary_data <- data_long %>%
   group_by(Week, Treatment) %>%
   summarise(
     mean_value = mean(Value, na.rm = TRUE),
-    sd_value = sd(Value, na.rm = TRUE),
+    se_value = sd(Value, na.rm = TRUE) / sqrt(n()),  # Standard Error
     .groups = 'drop'
-  ) %>%
-  mutate(sd_value = sd_value * sigma_multiple)  # Apply sigma multiple
+  )
 
-p1_title <- paste0("Leaf Number Over Time (Mean ± ", as.character(sigma_multiple),"σ)" )
+
+# p1_title <- paste0("Leaf Number Over Time (Mean ± ", as.character(sigma_multiple),"σ)" )
+
+p1_title <- "Leaf Number Over Time (Mean ± SEM)"
+
 # Create the line plot
 p1 <- ggplot(summary_data, aes(x = Week, y = mean_value, color = Treatment, group = Treatment)) +
   geom_line(linewidth = 1.2) +
   geom_point(size = 3) +
-  geom_errorbar(aes(ymin = mean_value - sd_value, ymax = mean_value + sd_value), width = 0.2) +
+  geom_errorbar(aes(ymin = mean_value - se_value, ymax = mean_value + se_value), width = 0.2) +
   labs(title = p1_title,
        x = "Week",
        y = "Leaf Number",
@@ -181,7 +194,8 @@ p1 <- ggplot(summary_data, aes(x = Week, y = mean_value, color = Treatment, grou
 print(p1)
 
 # Save the line plot as a PNG file
-file_name <- paste0("LeafNumbers_line_plot_mean_", as.character(sigma_multiple), "sigma.png")
+# file_name <- paste0("LeafNumbers_line_plot_mean_", as.character(sigma_multiple), "sigma.png")
+file_name <- "LeafNumbers_line_plot_mean_std_err.png"
 ggsave(filename = paste0(output_dir, file_name), plot = p1, width = 8, height = 6, dpi = 300)
 
 # Create the scatter plot (without jitter)
