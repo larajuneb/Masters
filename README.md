@@ -36,7 +36,7 @@ It includes two main components:
 ├── rna-seq-analysis/ # RNA-seq bioinformatics pipeline and data
 │ ├── data/ # Raw FASTQ files, reference genome & annotation
 │ ├── results/ # QC reports, counts, DE results, enrichment
-│ ├── refs/ # reference data for the Vitis vinifera enome and KEGG organism
+│ ├── refs/ # reference data for the Vitis vinifera genome and KEGG organism
 │ ├── scripts/ # Bash and R scripts for RNA-seq processing
 │ ├── slurm/ # SLURM job scripts for HPC
 │ ├── envs/ # Conda environment YAML files

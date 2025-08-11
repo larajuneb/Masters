@@ -1,6 +1,6 @@
 # Ignore raw data files (keep only scripts and processed results tracked)
-# You may want to track some data, so adjust as needed
 rna-seq-analysis/data/
+rna-seq-analysis/refs/
 
 # Ignore large result files (optional: track summary files only)
 rna-seq-analysis/results/
@@ -41,6 +41,17 @@ Thumbs.db
 *.fq
 *.bam
 *.sam
+
+# Reference genome and annotation files
+*.fa
+*.fasta
+*.fai
+*.gtf
+*.gff
+*.gbff
+*.gz
+*.tar
+*.zip
 
 # Ignore general backup files
 *~
