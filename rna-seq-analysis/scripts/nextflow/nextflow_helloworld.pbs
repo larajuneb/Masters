@@ -1,0 +1,16 @@
+#!/bin/bash
+#PBS -N Lara_nextflow_helloworld
+#PBS -l walltime=1:00:00,ncpus=2,mem=8gb
+#PBS -e nextflow_helloworld.err
+#PBS -o nextflow_helloworld.out
+#PBS -q bix
+
+cd $PBS_O_WORKDIR
+
+module load app/miniconda/mamba
+conda activate nf-core
+
+export NXF_OPTS="-Xmx1g -XX:CompressedClassSpaceSize=128m"
+
+nextflow run hello
+
