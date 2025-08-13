@@ -5,6 +5,12 @@ rna-seq-analysis/refs/
 # Ignore large result files (optional: track summary files only)
 rna-seq-analysis/results/
 
+# Ignore Nextflow cache
+rna-seq-analysis/scripts/.nextflow.log
+rna-seq-analysis/scripts/.nextflow/
+rna-seq-analysis/scripts/work/
+rna-seq-analysis/scripts/.nextflow.log
+
 # Ignore environment files if you don’t want to track them (optional)
 # You can track env YAML files, so comment these out if you want them tracked
 # rna-seq-analysis/envs/
