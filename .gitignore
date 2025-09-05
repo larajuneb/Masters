@@ -14,16 +14,16 @@ rna-seq-analysis/results/
 # ---------------------------
 # Nextflow cache and intermediate files
 # ---------------------------
-rna-seq-analysis/scripts/.nextflow.log*
-rna-seq-analysis/scripts/.nextflow/
-rna-seq-analysis/scripts/work/
-rna-seq-analysis/scripts/nextflow_final/
-rna-seq-analysis/scripts/nextflow_resume.pbs
-rna-seq-analysis/scripts/nextflow.config
-rna-seq-analysis/scripts/flowchart_resume.png
-rna-seq-analysis/scripts/report_resume.html
-rna-seq-analysis/scripts/timeline_resume.html
-rna-seq-analysis/scripts/trace_resume.txt
+rna-seq-analysis/scripts/nextflow/.nextflow.log*
+rna-seq-analysis/scripts/nextflow/.nextflow/
+rna-seq-analysis/scripts/nextflow/work/
+rna-seq-analysis/scripts/nextflow/nextflow_final/
+rna-seq-analysis/scripts/nextflow/nextflow_resume.pbs
+rna-seq-analysis/scripts/nextflow/nextflow.config
+rna-seq-analysis/scripts/nextflow/flowchart_resume.png
+rna-seq-analysis/scripts/nextflow/report_resume.html
+rna-seq-analysis/scripts/nextflow/timeline_resume.html
+rna-seq-analysis/scripts/nextflow/trace_resume.txt
 
 # nf-core output except MultiQC and quant.sf file for tximport
 rna-seq-analysis/nextflow-out-final/*
