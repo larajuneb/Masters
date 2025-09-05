@@ -1,8 +1,9 @@
 #!/bin/bash
-#PBS -N Lara_Nextflow
-#PBS -l walltime=24:00:00,ncpus=2,mem=40gb
-#PBS -e nextflow.err
-#PBS -o nextflow.out
+#PBS -N nf-core-rnaseq
+#PBS -l walltime=24:00:00
+#PBS -l select=1:ncpus=36:mem=72G
+#PBS -e rnaseq.err
+#PBS -o rnaseq.out
 #PBS -q bix
 #PBS -M 23594292@sun.ac.za
 #PBS -m abe
@@ -10,10 +11,46 @@
 cd $PBS_O_WORKDIR
 
 # Run nextflow
-module load app/miniconda/mamba
-conda activate nf-core
+#module load app/miniconda/mamba
+#conda activate nf-core
 
-export NXF_OPTS="-Xmx1g -XX:CompressedClassSpaceSize=128m"
+#export NXF_OPTS="-Xmx1g -XX:CompressedClassSpaceSize=128m"
 
-nextflow run hello
+#nextflow run hello
+
+
+
+
+module load app/nextflow/24
+
+#Step 1: Test nextflow and rnaseq pipeline using the command below:
+
+nextflow-24.10.5-dist run nf-core/rnaseq -profile test,singularity --outdir /home/
+
+#Output: a "work" directory will be created, check nextflow.log to see if it downloaded.
+
+#Step 2: run nextflow with samples
+
+nextflow-24.10.5-dist run nf-core/rnaseq \
+    --input ~/Masters/rna-seq-analysis/samplesheet.csv \
+    --outdir ~/Masters/rna-seq-analysis/nextflow-out/ \
+    --gff ~/Masters/rna-seq-analysis/refs/annotation/PN40024_5.1_on_T2T_ref_with_names.gff \
+    --fasta ~/Masters/rna-seq-analysis/refs/genome/T2T_ref.fasta \
+    --trimmer fastp \
+    --extra_salmon_quant_args '--seqBias --gcBias' \
+    -profile singularity
+
+#Input for this pipeline:
+#1. --input <SAMPLESHEET>: information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separa$
+#samplesheet.csv: sample,fastq_1,fastq_2,strandedness
+#CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,auto
+#auto setting: the pipeline will sub-sample the input FastQ files to 1 million reads, use Salmon Quant to automatically infer the strandedness, and then propagate this information thr$
+#2. --fasta: Path to FASTA genome file
+#3. --gff: Path to GFF3 annotation file. NB. annotation file needs to have .gff file type
+#--trimmer: Specifies the trimming tool to use - available options are ‘trimgalore’ and ‘fastp’. 'fastp' is prefered for tool in vitis articles
+
+#Notes
+#By default, the pipeline uses STAR (i.e. --aligner star_salmon) to map the raw FastQ reads to the reference genome, project the alignments onto the transcriptome and to perform the downstream Bam-level quantification with Salmon.
+#GTF filtering: By default, the input GTF file will be filtered to ensure that sequence names correspond to those in the genome fasta file (where supplied), and to remove rows with empty transcript identifiers.
+#Salmon quantifies reads over transcripts
 

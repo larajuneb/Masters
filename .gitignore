@@ -1,54 +1,73 @@
+# ---------------------------
+# Raw data and references
+# ---------------------------
 # Ignore raw data files (keep only scripts and processed results tracked)
 rna-seq-analysis/data/
 rna-seq-analysis/refs/
 
+# ---------------------------
+# Large result files
+# ---------------------------
 # Ignore large result files (optional: track summary files only)
 rna-seq-analysis/results/
 
-# Ignore Nextflow cache
-rna-seq-analysis/scripts/.nextflow.log
+# ---------------------------
+# Nextflow cache and intermediate files
+# ---------------------------
+rna-seq-analysis/scripts/.nextflow.log*
 rna-seq-analysis/scripts/.nextflow/
 rna-seq-analysis/scripts/work/
-rna-seq-analysis/scripts/.nextflow.log
+rna-seq-analysis/scripts/nextflow_final/
+rna-seq-analysis/scripts/nextflow_resume.pbs
+rna-seq-analysis/scripts/nextflow.config
+rna-seq-analysis/scripts/flowchart_resume.png
+rna-seq-analysis/scripts/report_resume.html
+rna-seq-analysis/scripts/timeline_resume.html
+rna-seq-analysis/scripts/trace_resume.txt
 
+# nf-core output except MultiQC and quant.sf file for tximport
+rna-seq-analysis/nextflow-out-final/*
+!rna-seq-analysis/nextflow-out-final/multiqc/star_salmon/multiqc_report.html
+!rna-seq-analysis/nextflow-out-final/star_salmon/*/quant.sf
+
+# ---------------------------
+# R environment
+# ---------------------------
 # Ignore environment files if you don’t want to track them (optional)
 # You can track env YAML files, so comment these out if you want them tracked
 # rna-seq-analysis/envs/
 
-# Ignore R session files and history
+# R session files and history
 *.RData
 *.Rhistory
 .Rproj.user/
-.Rhistory
-.RData
 
-# Ignore common OS files
+# ---------------------------
+# OS and editor files
+# ---------------------------
 .DS_Store
 Thumbs.db
-
-# Ignore editor/project-specific files
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# Ignore logs and temp files
+# ---------------------------
+# Logs, temp, slurm
+# ---------------------------
 *.log
 *.tmp
 *.temp
-
-# Ignore slurm output files
 *.out
 *.err
-*.log
 
-# Ignore fastq and bam files if any intermediate alignment files exist
+# ---------------------------
+# Sequencing and reference files
+# ---------------------------
 *.fastq
 *.fq
 *.bam
 *.sam
-
-# Reference genome and annotation files
 *.fa
 *.fasta
 *.fai
@@ -59,6 +78,9 @@ Thumbs.db
 *.tar
 *.zip
 
-# Ignore general backup files
+# ---------------------------
+# Backup files
+# ---------------------------
 *~
 *.bak
+

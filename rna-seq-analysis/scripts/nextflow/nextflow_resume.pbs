@@ -1,0 +1,29 @@
+#!/bin/bash
+#PBS -N nf-core-rnaseq-resume
+#PBS -l walltime=24:00:00
+#PBS -l select=1:ncpus=36:mem=72G
+#PBS -e rnaseq_resume.err
+#PBS -o rnaseq_resume.out
+#PBS -q bix
+#PBS -M 23594292@sun.ac.za
+#PBS -m abe
+
+cd $PBS_O_WORKDIR
+
+# Load Nextflow
+module load app/nextflow/24
+
+# Resume pipeline
+nextflow-24.10.5-dist run nf-core/rnaseq \
+    --input ~/Masters/rna-seq-analysis/samplesheet.csv \
+    --outdir ~/Masters/rna-seq-analysis/nextflow-out/results_resume \
+    --gff ~/Masters/rna-seq-analysis/refs/annotation/PN40024_5.1_on_T2T_ref_with_names.gff \
+    --fasta ~/Masters/rna-seq-analysis/refs/genome/T2T_ref.fasta \
+    --trimmer fastp \
+    --extra_salmon_quant_args '--seqBias --gcBias' \
+    -profile singularity \
+    -resume \
+    -with-trace trace_resume.txt \
+    -with-timeline timeline_resume.html \
+    -with-report report_resume.html \
+    -with-dag flowchart_resume.png
