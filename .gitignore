@@ -6,12 +6,6 @@ rna-seq-analysis/data/
 rna-seq-analysis/refs/
 
 # ---------------------------
-# Large result files
-# ---------------------------
-# Ignore large result files (optional: track summary files only)
-rna-seq-analysis/results/
-
-# ---------------------------
 # Nextflow cache and intermediate files
 # ---------------------------
 rna-seq-analysis/scripts/nextflow/.nextflow.log*
@@ -26,7 +20,7 @@ rna-seq-analysis/scripts/nextflow/timeline_resume.html
 rna-seq-analysis/scripts/nextflow/trace_resume.txt
 
 # nf-core output except MultiQC and quant.sf file for tximport
-rna-seq-analysis/nextflow-out-final/*
+rna-seq-analysis/results/nextflow-out-final/*
 !rna-seq-analysis/results/nextflow-out-final/multiqc/star_salmon/multiqc_report.html
 !rna-seq-analysis/results/nextflow-out-final/star_salmon/*/quant.sf
 
