@@ -152,7 +152,6 @@ out_file_filtered <- "~/Masters/rna-seq-analysis/results/deseq2/global_blind/DES
 filter_and_annotate(res_global, anno_file, out_file_filtered)
 
 cat("Global blind DESeq2 run complete. Results saved in 'global_blind' folder.\n")
-
 # -----------------------------
 # Global DESeq2: ~ timepoint + condition
 # -----------------------------
@@ -199,20 +198,37 @@ pdf("~/Masters/rna-seq-analysis/results/deseq2/global_time_adjusted/MAplot_globa
 plotMA(dds_timeadj, ylim = c(-5,5))
 dev.off()
 
-# Extract results for condition effect
-res_timeadj <- results(dds_timeadj, contrast = c("condition", "stimblue", "control"))
-res_timeadj <- res_timeadj[order(res_timeadj$padj), ]
+# ---- Extract all pairwise timepoint contrasts ----
+time_levels <- levels(meta_global$timepoint)
+for(i in 1:(length(time_levels)-1)){
+  for(j in (i+1):length(time_levels)){
+    contrast_name <- paste0("timepoint_", time_levels[j], "_vs_", time_levels[i])
+    cat("Extracting contrast:", contrast_name, "\n")
+    res_tp <- results(dds_timeadj, contrast = c("timepoint", time_levels[j], time_levels[i]))
+    res_tp <- res_tp[order(res_tp$padj), ]
+    
+    out_csv <- paste0("~/Masters/rna-seq-analysis/results/deseq2/global_time_adjusted/DESeq2_results_timepoint_", 
+                      time_levels[j], "_vs_", time_levels[i], ".csv")
+    write.csv(as.data.frame(res_tp), out_csv)
+    
+    out_filt <- paste0("~/Masters/rna-seq-analysis/results/deseq2/global_time_adjusted/DESeq2_results_timepoint_", 
+                       time_levels[j], "_vs_", time_levels[i], "_filtered_annotated.csv")
+    filter_and_annotate(res_tp, anno_file, out_filt)
+  }
+}
 
-write.csv(as.data.frame(res_timeadj),
-          file = "~/Masters/rna-seq-analysis/results/deseq2/global_time_adjusted/DESeq2_results_global.csv")
-
-filter_and_annotate(res_timeadj, anno_file,
-                    "~/Masters/rna-seq-analysis/results/deseq2/global_time_adjusted/DESeq2_results_global_filtered_annotated.csv")
+# ---- Extract condition effect ----
+res_cond <- results(dds_timeadj, contrast = c("condition", "stimblue", "control"))
+res_cond <- res_cond[order(res_cond$padj), ]
+write.csv(as.data.frame(res_cond),
+          file = "~/Masters/rna-seq-analysis/results/deseq2/global_time_adjusted/DESeq2_results_condition.csv")
+filter_and_annotate(res_cond, anno_file,
+                    "~/Masters/rna-seq-analysis/results/deseq2/global_time_adjusted/DESeq2_results_condition_filtered_annotated.csv")
 
 cat("Global DESeq2 ~ timepoint + condition complete.\n")
 
 # -----------------------------
-# Global DESeq2: ~ timepoint * condition
+# Global DESeq2: ~ timepoint * condition (interaction)
 # -----------------------------
 cat("Running global DESeq2: ~ timepoint * condition (interaction)\n")
 
@@ -257,17 +273,29 @@ pdf("~/Masters/rna-seq-analysis/results/deseq2/global_interaction/MAplot_global.
 plotMA(dds_interaction, ylim = c(-5,5))
 dev.off()
 
-# Extract results for interaction term
-res_interaction <- results(dds_interaction, name = "condition_stimblue.timepoint2")  # example; loop over contrasts if needed
-res_interaction <- res_interaction[order(res_interaction$padj), ]
-
-write.csv(as.data.frame(res_interaction),
-          file = "~/Masters/rna-seq-analysis/results/deseq2/global_interaction/DESeq2_results_global.csv")
-
-filter_and_annotate(res_interaction, anno_file,
-                    "~/Masters/rna-seq-analysis/results/deseq2/global_interaction/DESeq2_results_global_filtered_annotated.csv")
+# ---- Loop over all interaction contrasts: stimblue vs control at each timepoint ----
+for(tp in time_levels){
+  # Construct the interaction name dynamically
+  interaction_name <- paste0("condition_stimblue_vs_control.timepoint", tp)
+  
+  if(interaction_name %in% resultsNames(dds_interaction)){
+    cat("Extracting interaction: stimblue vs control at timepoint", tp, "\n")
+    res_int <- results(dds_interaction, name = interaction_name)
+    res_int <- res_int[order(res_int$padj), ]
+    
+    out_csv <- paste0("~/Masters/rna-seq-analysis/results/deseq2/global_interaction/DESeq2_results_interaction_timepoint_", tp, ".csv")
+    write.csv(as.data.frame(res_int), out_csv)
+    
+    out_filt <- paste0("~/Masters/rna-seq-analysis/results/deseq2/global_interaction/DESeq2_results_interaction_timepoint_", tp, "_filtered_annotated.csv")
+    filter_and_annotate(res_int, anno_file, out_filt)
+    
+  } else {
+    warning("Interaction term not found for timepoint ", tp)
+  }
+}
 
 cat("Global DESeq2 ~ timepoint * condition complete.\n")
+
 
 
 # -----------------------------
