@@ -154,6 +154,123 @@ filter_and_annotate(res_global, anno_file, out_file_filtered)
 cat("Global blind DESeq2 run complete. Results saved in 'global_blind' folder.\n")
 
 # -----------------------------
+# Global DESeq2: ~ timepoint + condition
+# -----------------------------
+cat("Running global DESeq2: ~ timepoint + condition\n")
+
+dds_timeadj <- DESeqDataSetFromTximport(
+  txi     = txi_global,
+  colData = meta_global,
+  design  = ~ timepoint + condition
+)
+
+dds_timeadj <- DESeq(dds_timeadj)
+vsd_timeadj <- vst(dds_timeadj, blind = TRUE)
+
+# PCA plot
+pca_data <- plotPCA(vsd_timeadj, intgroup = c("condition", "timepoint"), returnData = TRUE)
+percentVar <- round(100 * attr(pca_data, "percentVar"))
+p <- ggplot(pca_data, aes(x = PC1, y = PC2, color = condition, shape = timepoint)) +
+  geom_point(size = 3) +
+  xlab(paste0("PC1: ", percentVar[1], "% variance")) +
+  ylab(paste0("PC2: ", percentVar[2], "% variance")) +
+  theme_bw() +
+  scale_color_manual(values = c("control" = "red", "stimblue" = "blue")) +
+  scale_shape_manual(values = c(16, 17, 15))
+
+pdf("~/Masters/rna-seq-analysis/results/deseq2/global_time_adjusted/PCA_global.pdf")
+print(p)
+dev.off()
+
+# Sample distance heatmap
+sampleDists <- dist(t(assay(vsd_timeadj)))
+sampleDistMatrix <- as.matrix(sampleDists)
+rownames(sampleDistMatrix) <- colnames(vsd_timeadj)
+colnames(sampleDistMatrix) <- colnames(vsd_timeadj)
+pdf("~/Masters/rna-seq-analysis/results/deseq2/global_time_adjusted/Heatmap_global.pdf")
+pheatmap(sampleDistMatrix,
+         clustering_distance_rows = sampleDists,
+         clustering_distance_cols = sampleDists,
+         annotation_col = meta_global[, c("condition", "timepoint")])
+dev.off()
+
+# MA plot
+pdf("~/Masters/rna-seq-analysis/results/deseq2/global_time_adjusted/MAplot_global.pdf")
+plotMA(dds_timeadj, ylim = c(-5,5))
+dev.off()
+
+# Extract results for condition effect
+res_timeadj <- results(dds_timeadj, contrast = c("condition", "stimblue", "control"))
+res_timeadj <- res_timeadj[order(res_timeadj$padj), ]
+
+write.csv(as.data.frame(res_timeadj),
+          file = "~/Masters/rna-seq-analysis/results/deseq2/global_time_adjusted/DESeq2_results_global.csv")
+
+filter_and_annotate(res_timeadj, anno_file,
+                    "~/Masters/rna-seq-analysis/results/deseq2/global_time_adjusted/DESeq2_results_global_filtered_annotated.csv")
+
+cat("Global DESeq2 ~ timepoint + condition complete.\n")
+
+# -----------------------------
+# Global DESeq2: ~ timepoint * condition
+# -----------------------------
+cat("Running global DESeq2: ~ timepoint * condition (interaction)\n")
+
+dds_interaction <- DESeqDataSetFromTximport(
+  txi     = txi_global,
+  colData = meta_global,
+  design  = ~ timepoint * condition
+)
+
+dds_interaction <- DESeq(dds_interaction)
+vsd_interaction <- vst(dds_interaction, blind = TRUE)
+
+# PCA plot
+pca_data <- plotPCA(vsd_interaction, intgroup = c("condition", "timepoint"), returnData = TRUE)
+percentVar <- round(100 * attr(pca_data, "percentVar"))
+p <- ggplot(pca_data, aes(x = PC1, y = PC2, color = condition, shape = timepoint)) +
+  geom_point(size = 3) +
+  xlab(paste0("PC1: ", percentVar[1], "% variance")) +
+  ylab(paste0("PC2: ", percentVar[2], "% variance")) +
+  theme_bw() +
+  scale_color_manual(values = c("control" = "red", "stimblue" = "blue")) +
+  scale_shape_manual(values = c(16, 17, 15))
+
+pdf("~/Masters/rna-seq-analysis/results/deseq2/global_interaction/PCA_global.pdf")
+print(p)
+dev.off()
+
+# Sample distance heatmap
+sampleDists <- dist(t(assay(vsd_interaction)))
+sampleDistMatrix <- as.matrix(sampleDists)
+rownames(sampleDistMatrix) <- colnames(vsd_interaction)
+colnames(sampleDistMatrix) <- colnames(vsd_interaction)
+pdf("~/Masters/rna-seq-analysis/results/deseq2/global_interaction/Heatmap_global.pdf")
+pheatmap(sampleDistMatrix,
+         clustering_distance_rows = sampleDists,
+         clustering_distance_cols = sampleDists,
+         annotation_col = meta_global[, c("condition", "timepoint")])
+dev.off()
+
+# MA plot
+pdf("~/Masters/rna-seq-analysis/results/deseq2/global_interaction/MAplot_global.pdf")
+plotMA(dds_interaction, ylim = c(-5,5))
+dev.off()
+
+# Extract results for interaction term
+res_interaction <- results(dds_interaction, name = "condition_stimblue.timepoint2")  # example; loop over contrasts if needed
+res_interaction <- res_interaction[order(res_interaction$padj), ]
+
+write.csv(as.data.frame(res_interaction),
+          file = "~/Masters/rna-seq-analysis/results/deseq2/global_interaction/DESeq2_results_global.csv")
+
+filter_and_annotate(res_interaction, anno_file,
+                    "~/Masters/rna-seq-analysis/results/deseq2/global_interaction/DESeq2_results_global_filtered_annotated.csv")
+
+cat("Global DESeq2 ~ timepoint * condition complete.\n")
+
+
+# -----------------------------
 # Step 2: Loop over timepoints for per-timepoint DESeq2
 # -----------------------------
 timepoints <- unique(samplesheet$timepoint)
