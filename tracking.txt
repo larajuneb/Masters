@@ -1,0 +1,62 @@
+sept 7-10:
+- Made tx2gene file from quant.sf file from first sample (control something, top of list)
+- Used tximport for gene expression levels
+- DESEq2 for all (global, global + timepoint, global*timepoint, and condition for each timepoint to cpmare all results)
+- Extracted DGE genes (padj < 0.05 and |log2foldchange| > 1
+
+Need to do:
+- need to import gene names (if exists in T2T annotation), GO terms, functional annotations etc info from database to flagged DGEs to make one united document on gene info for each DESeq2 run. 
+- look at outcomes, decide which is usefull and what each output tells us about the data and where variation comes from. The data is currently saying that most variation comes from the sampling timepoint, and that when you compare stimblue to control across all timepoints, then there are no significantly differentially expressed genes, showing that timepoint is a large factor in variation, more than treatment. Need to take note of what blind = TRUE / FALSE means, and also what each comparison tells us for DESeq2.
+- need to run GO enrichment and KEGG pathway analysis with annotation files.
+
+Sept 11:
+- global_blind deseq2 (~ condition) run:
+asking "On average, across all timepoints, is Stimblue different from control?"
+since the model ignores time, any genes whose treatment effect is strong at one timepints but not another (or reversed) will have their signals averaged out, shrinking contrast and inflating variance. This approach dilutes effects at each timepoint. Variance associated with time is likely stronger than clear effect on stimblue consistently across all timepoints. Global ~condition: no DEGs ⇒ no consistent treatment-wide shift across the entire experiment; treatment responses are time-dependent.
+- ~ condition + timepoint design in Deseq2 (time adjusted):
+"What is the effect of Stimblue, while accounting for differences between timepoints?" (ie it tries to separate treatment effects from the baseline changes that happen simply due to time).
+It represents the average treatment effect across all timepoints, after removing the influence of time. If a gene consistently responds to treatment at every timepoint, it should show up in the DEGs
+Limitations: it does not capture treatment x timepoint interactions: genes that respond only at specific timepoints may still be missed because the model assumes the treatment effect is the same across time.
+Biologically: "Which genes change due to treatment, independent of general tmporal changes?"
+There are however only 5 DEGs across all timepoints, with padj between 0.026 and 0.049.
+Global treatment effect is weak.
+- ~ condition * timepoint design in Deseq2 (interaction):
+for the stimblue vs control at timepoint 1 (baseline): only 2 DEGs, meaning only 2 genes show significant change at this baseline.
+timepoint 2 vs 1 and timepoint 3 vs 1: many DEGs, these results represent changes in gene expression between timepoints irrespective of treatment (ie, changes that occur both in control and StimBlue at the same levels, so temporal changes)
+for interactions at timepoint 2 and 3 compared to the timpoint 1 baseline:timepint 2 had 8 DEGs, and timepoint 3 had 8 DEGs, 1 shared between the two.
+
+
+1) Running DESeq2 at each timepint separately:
+- reflects effects of treatment at each timepont independents of the other timepoints
+- timepoints aren't modelled, so you can't see if treatment effect changes over time'
+- good if you are mostly interested in treatment effect at each timepoint, but you won't see the change over time
+2) global model with ~ condition + timepoint (time adjusted):
+- condition term: tells you treatment effect averaged over all timepoints, baseline treatment effect averaged across time, not specific to any timepoints
+- timepoint term: overall change due to time ignoring treatment (temporal changes in control)
+- assumes treatment effect is the same at all timepoints
+3) global model with ~ timepoint*condition (interaction):
+- condition: baseline treatment effect at reference point (timepoint 1)
+- timepoint: effect of time in control (baseline treatment)
+- timepoint2.conditionstimblue: additional effect of treatment at timepoint 2 compared to baseline
+- timepoint3.conditionstimblue: similar to above but for timepoint 3
+- captures treatment effect over time, can detect time-specific effects
+
+
+Pipeline:
+1) Global blind
+	- Purpose: blind testing to see if there is an effect over all timepoints
+	- no DEGs ⇒ no consistent treatment-wide shift across the entire experiment; 	treatment responses are time-dependent
+2) Per-timepoint analyses (separately, ~ condition)
+	- Purpose: find treatment effects at each timepoint separately
+	- TP1: 53 DEGs
+	- TP2: 18 DEGs
+	- TP3: 95 DEGs
+3) Global time-adjusted model (~ timepoint + condition)
+	- Purpose: test whether there is an average treatment effect once you remove time differences. Remove variances from time and reveals treatment effects masked by time
+	- res_cond has 5 DEGs: < 10, no consistent treatment signal after accounting for time
+	- timepoint 2 vs 1, 3 vs 1, 3 vs 2: > 500 DEGs, treatment is time-dependent, move to step 4
+4) Global interaction model (~ timepoint * condition)
+	- Purpose: formally test whether treatment effects change with time, and to get treatment vs control at each timepoint from one model
+	- condition stimblue vs control (TP1): only 2 DEGs
+	- Treatment effect at TP2: only 8 DEGs
+	- Treatment effect at TP3: only 8 DEGs

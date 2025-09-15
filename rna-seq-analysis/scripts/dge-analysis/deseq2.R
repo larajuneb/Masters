@@ -273,30 +273,33 @@ pdf("~/Masters/rna-seq-analysis/results/deseq2/global_interaction/MAplot_global.
 plotMA(dds_interaction, ylim = c(-5,5))
 dev.off()
 
-# ---- Loop over all interaction contrasts: stimblue vs control at each timepoint ----
-for(tp in time_levels){
-  # Construct the interaction name dynamically
-  interaction_name <- paste0("condition_stimblue_vs_control.timepoint", tp)
+# List of all result names
+all_names <- resultsNames(dds_interaction)
+all_names
+
+# Export each coefficient as its own CSV and filtered/annotated CSV
+for (nm in all_names) {
+  cat("Extracting:", nm, "\n")
   
-  if(interaction_name %in% resultsNames(dds_interaction)){
-    cat("Extracting interaction: stimblue vs control at timepoint", tp, "\n")
-    res_int <- results(dds_interaction, name = interaction_name)
-    res_int <- res_int[order(res_int$padj), ]
-    
-    out_csv <- paste0("~/Masters/rna-seq-analysis/results/deseq2/global_interaction/DESeq2_results_interaction_timepoint_", tp, ".csv")
-    write.csv(as.data.frame(res_int), out_csv)
-    
-    out_filt <- paste0("~/Masters/rna-seq-analysis/results/deseq2/global_interaction/DESeq2_results_interaction_timepoint_", tp, "_filtered_annotated.csv")
-    filter_and_annotate(res_int, anno_file, out_filt)
-    
-  } else {
-    warning("Interaction term not found for timepoint ", tp)
-  }
+  res <- results(dds_interaction, name = nm)
+  res <- res[order(res$padj), ]
+  
+  safe_nm <- gsub("[^A-Za-z0-9._-]", "_", nm)  # clean name for file paths
+  
+  out_csv <- paste0(
+    "~/Masters/rna-seq-analysis/results/deseq2/global_interaction/DESeq2_results_",
+    safe_nm, ".csv"
+  )
+  write.csv(as.data.frame(res), out_csv)
+  
+  out_filt <- paste0(
+    "~/Masters/rna-seq-analysis/results/deseq2/global_interaction/DESeq2_results_",
+    safe_nm, "_filtered_annotated.csv"
+  )
+  filter_and_annotate(res, anno_file, out_filt)
 }
 
 cat("Global DESeq2 ~ timepoint * condition complete.\n")
-
-
 
 # -----------------------------
 # Step 2: Loop over timepoints for per-timepoint DESeq2
