@@ -30,9 +30,9 @@ annotate_genes <- function(filtered_genes_csv,
 }
 
 # Example usage:
-dir <- "~/Masters/rna-seq-analysis/results/deseq2/timepoints/TP1/"
-filtered_genes_csv <- paste0(dir, "DESeq2_results_TP1_filtered_annotated.csv")
-out_file <- paste0(dir, "annot/log2FC_1_")
+dir <- "~/Masters/rna-seq-analysis/results/deseq2/global_time_adjusted/"
+filtered_genes_csv <- paste0(dir, "DESeq2_results_condition_filtered_annotated_0.5.csv")
+out_file <- paste0(dir, "annot/log2FC_0.5_")
 ref_dir <- "~/Masters/rna-seq-analysis/refs/annotation/formatted/" #path for formatted annotations
 
 go_file <- paste0(ref_dir, "go_summary.csv")

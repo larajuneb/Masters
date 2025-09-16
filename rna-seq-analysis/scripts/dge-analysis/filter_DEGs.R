@@ -64,10 +64,10 @@ filter_and_annotate_csv <- function(csv_file, anno_file, out_file, padj_threshol
 # Example usage
 # -----------------------------
 padj_threshold <- 0.05
-log2FC_threshold <- 0.5
+log2FC_threshold <- 1
 
-csv_file   <- "~/Masters/rna-seq-analysis/results/deseq2/timepoints/TP1/DESeq2_results_TP1.csv"
+csv_file   <- "~/Masters/rna-seq-analysis/results/deseq2/global_time_adjusted/DESeq2_results_condition.csv"
 anno_file  <- "~/Masters/rna-seq-analysis/refs/annotation/PN40024_5.1_on_T2T_ref_with_names.gff3"
-out_file   <- "~/Masters/rna-seq-analysis/results/deseq2/timepoints/TP1/DESeq2_results_TP1_filtered_annotated_0.5.csv"
+out_file   <- "~/Masters/rna-seq-analysis/results/deseq2/global_time_adjusted/DESeq2_results_condition_filtered_annotated.csv"
 
 filtered <- filter_and_annotate_csv(csv_file, anno_file, out_file, padj_threshold, log2FC_threshold)
