@@ -64,6 +64,7 @@ format_annotations <- function(go_file,
                                blast2go_tsv_file,
                                gene_pattern = "Vitvi",
                                out_dir) {
+  go_file <- paste0(ref_dir, "5.1_on_T2T_ref_GO.gmt")
   # 2. parse GMT into long table (geneID per row)
   go_long <- parse_gmt(go_file, gene_pattern = gene_pattern)
   
@@ -91,6 +92,8 @@ format_annotations <- function(go_file,
     group_by(GO, GO_MF) %>%
     summarise(genes = paste(geneID, collapse = "\t"), .groups = "drop") %>%
     ungroup()
+  
+  write_csv(go_gmt, file.path(out_dir, "GO_gsea.csv"))
   
   # Create the final lines in GSEA .gmt format
   
