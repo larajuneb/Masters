@@ -77,6 +77,31 @@ format_annotations <- function(go_file,
     )
   write_csv(go_summary, file.path(out_dir, "go_summary.csv"))
   
+  # remove prefixes
+  go_long <- go_long %>%
+    mutate(
+      GO = GO,
+      GO_MF = GO_MF,
+      GO_MF = gsub(" ", "_", GO_MF)
+    )
+  
+  # collapse genes by GO term
+  
+  go_gmt <- go_long %>%
+    group_by(GO, GO_MF) %>%
+    summarise(genes = paste(geneID, collapse = "\t"), .groups = "drop") %>%
+    ungroup()
+  
+  # Create the final lines in GSEA .gmt format
+  
+  gmt_lines <- apply(go_gmt, 1, function(x) {
+    paste(c(x["GO"], x["GO_MF"], x["genes"]), collapse = "\t")
+  })
+  
+  # Save to file
+  writeLines(gmt_lines, paste0(out_dir, "GO_gsea.gmt"))
+  
+  
   # 4. functional summary (clean file, pad missing columns, rename gene -> geneID)
   num_cols_expected <- 12  # set to expected number of columns in the summary file
   
